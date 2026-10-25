@@ -1,0 +1,16 @@
+
+# .NET build output
+**/bin/
+**/obj/
+
+# SQLite local databases
+*.db
+*.db-shm
+*.db-wal
+
+# Test output
+**/TestResults/
+
+# Visual Studio
+.vs/
+
