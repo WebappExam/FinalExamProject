@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StudyRoomBooking.Database")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0e8bcc4e1fcbe30dcd0fb990e93791fab1243a8c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c5a37e26f1780c544e4a25faff77b1f75e22c1dc")]
 [assembly: System.Reflection.AssemblyProductAttribute("StudyRoomBooking.Database")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StudyRoomBooking.Database")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
