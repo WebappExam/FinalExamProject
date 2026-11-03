@@ -11,5 +11,7 @@ public class LocationViewModel
     //Søketekst som skal vises i søkefelt
     public string? SearchQuery { get; set; } 
 
+    //Bygget bruker ønsker å filtrere rom på
+    public string? Building { get; set; }
     public List<Room> Rooms { get; set; } = new();
 }

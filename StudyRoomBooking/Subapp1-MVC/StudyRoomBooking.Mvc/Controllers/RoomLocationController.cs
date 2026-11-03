@@ -29,7 +29,7 @@ public class RoomLocationController : Controller
     }
 
     // Viser rommene på lokasjonen brukeren valgte + søketekst som skal vises i søkefeltet
-    public async Task<IActionResult> Rooms(int locationId, string ? searchQuery)
+    public async Task<IActionResult> Rooms(int locationId, string ? searchQuery,string ? building)
     {
         var location = await _locationRepository
             .GetWithRoomsAsync(locationId);
@@ -46,12 +46,22 @@ public class RoomLocationController : Controller
         rooms = rooms.Where(room => 
         room.RoomName.ToLower().Contains(searchQuery.Trim().ToLower()));
     }
+
+//Filtrerer videre på bygg hvis bruker har skrevet inn i søkefeltet
+if (!string.IsNullOrWhiteSpace(building))
+
+    {
+        rooms = rooms.Where(room => 
+        room.Building.ToLower().Contains(building.Trim().ToLower()));
+    }
+
 //Sender søketekst og filtrert romliste til viewmodel som skal vises i viewet
         var viewModel = new LocationViewModel
         {
             LocationId = location.LocationId,
             LocationName = location.Name,
             SearchQuery = searchQuery,
+            Building = building,
             Rooms = rooms
                 .OrderBy(room => room.RoomName)
                 .ToList()

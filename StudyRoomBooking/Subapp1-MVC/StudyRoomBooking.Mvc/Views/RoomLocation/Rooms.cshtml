@@ -20,6 +20,14 @@
     value="@Model.SearchQuery"
     class="form-control" 
     placeholder="Skriv romnavn" />
+    @*Beholder bygg filter i felt etter søk*@
+    <label for="building" class="form-label mt -3">Bygg:</label>
+    <input type="text" 
+           id="building" 
+           name="building" 
+           value="@Model.Building"
+           class="form-control" 
+           placeholder="Skriv bygg" />
     <button type="submit" class="btn btn-primary mt-2">Søk</button>
     </form>
 
