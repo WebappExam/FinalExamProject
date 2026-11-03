@@ -8,5 +8,8 @@ public class LocationViewModel
 
     public string LocationName { get; set; } = string.Empty;
 
+    //Søketekst som skal vises i søkefelt
+    public string? SearchQuery { get; set; } 
+
     public List<Room> Rooms { get; set; } = new();
 }
