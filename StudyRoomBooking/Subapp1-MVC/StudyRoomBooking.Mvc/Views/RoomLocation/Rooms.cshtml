@@ -1,0 +1,33 @@
+@model StudyRoomBooking.Mvc.viewModel.LocationViewModel
+
+@{
+    ViewData["Title"] = $"Rom på {Model.LocationName}";
+}
+
+<h1>Rom på @Model.LocationName</h1>
+
+<a href="@Url.Action("Index", "RoomLocation")">
+    Tilbake til lokasjoner
+</a>
+
+@if (Model.Rooms.Count == 0)
+{
+    <p>Det finnes ingen rom på denne lokasjonen ennå.</p>
+}
+else
+{
+    <div class="row mt-3">
+        @foreach (var room in Model.Rooms)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="h5">@room.RoomName</h2>
+                        <p>Kapasitet: @room.Capacity personer</p>
+                        <p>Bygg: @room.Building</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-namespace StudyRoomBooking.Web.Models;
+namespace StudyRoomBooking.Mvc.Models;
 
 /*
 This class represents a concrete booking within a concrete timeframe (Start Time and End Time)

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-
-namespace StudyRoomBooking.Web.Models;
+using Microsoft.CodeAnalysis;
+namespace StudyRoomBooking.Mvc.Models;
 
 // This class represents a physical group room on campus
 public class Room
@@ -36,6 +36,13 @@ public class Room
 
     [Required]
     public string Building { get; set; } = string.Empty;
+
+
+    //Connecting a room Location to a Room (e.g Pilestredet, Kjeller or Holmlia)
+    public int LocationId { get; set; }
+
+    public Location Location { get; set; } = null!;
+
 
     // Navigation property for bookings associated with the room
     public ICollection<RoomBooking> Bookings { get; set; } = new List<RoomBooking>();
