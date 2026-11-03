@@ -28,6 +28,16 @@
            value="@Model.Building"
            class="form-control" 
            placeholder="Skriv bygg" />
+    @*Filtrer på minst antall plasser i rommet*@
+    <label for="minCapacity" class="form-label mt-3">Minste kapasitet:</label>
+    <input type="number" 
+           id="minCapacity" 
+           name="minCapacity" 
+           value="@Model.MinCapacity"
+           min="1"
+           step="1"
+           class="form-control" 
+           placeholder="Skriv minste kapasitet" />
     <button type="submit" class="btn btn-primary mt-2">Søk</button>
     </form>
 
