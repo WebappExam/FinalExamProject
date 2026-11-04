@@ -10,6 +10,15 @@
     Tilbake til lokasjoner
 
 </a>
+
+@*Åpner skjema for oprettelse med valgt lokasjon*@
+<a asp-controller="RoomLocation" 
+   asp-action="Create" 
+   asp-route-locationId="@Model.LocationId" 
+   class="btn btn-primary ms-3">
+    Opprett nytt rom
+</a>
+
 @*Søker etter romnavn for valgt lokasjon*@
 <form asp-controller="RoomLocation" asp-action="Rooms" method="get" class="mt-3 mb-3">
     <input type="hidden" name="locationId" value="@Model.LocationId" />

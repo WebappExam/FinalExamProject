@@ -1,0 +1,39 @@
+@model StudyRoomBooking.Mvc.viewModel.RoomCreateViewModel
+@{
+    ViewData["Title"] = "Opprett nytt rom";
+}
+
+<h1>Opprett nytt rom</h1>
+<form asp-controller="RoomLocation" asp-action="Create" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    @*Beholder kobling til valgt lokasjon*@
+    <input asp-for="LocationId" type="hidden" />
+
+<div class="mb-3">
+        <label asp-for="RoomName" class="form-label">Romnavn</label>
+        <input asp-for="RoomName" class="form-control" />
+        <span asp-validation-for="RoomName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Capacity" class="form-label">Kapasitet</label>
+        <input asp-for="Capacity" type="number" 
+        min="1" max="100" class="form-control" />
+        <span asp-validation-for="Capacity" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Building" class="form-label">Bygg</label>
+        <input asp-for="Building" class="form-control" />
+        <span asp-validation-for="Building" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Opprett rom</button>
+    <a asp-controller="RoomLocation" 
+    asp-action="Rooms" 
+    asp-route-locationId="@Model.LocationId" 
+    class="btn btn-secondary">
+    Avbryt
+    </a>
+</form>
