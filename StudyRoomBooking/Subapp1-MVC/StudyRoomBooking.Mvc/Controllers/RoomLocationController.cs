@@ -92,7 +92,71 @@ public class RoomLocationController : Controller
         return View(viewModel);
     }
  }
-// Viser lokasjonene på startsiden.
+
+ [HttpGet]
+    public async Task<IActionResult> Update(int roomId)
+    {
+        var room = await _roomRepository.GetRoomById(roomId);
+
+        if (room == null)
+        {
+            return NotFound("Rommet finnes ikke.");
+        }
+
+    var viewModel = new RoomUpdateViewModel
+        {
+            RoomId= room.RoomId,
+            LocationId = room.LocationId,
+            RoomName = room.RoomName,
+            Capacity = room.Capacity,
+            Building = room.Building
+        };
+        return View(viewModel);
+    }
+
+[HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Update(RoomUpdateViewModel viewModel)
+    {
+        try
+        {
+            var room = await _roomRepository.GetRoomById(viewModel.RoomId);
+            if (room == null)
+            {
+                return NotFound("Rommet finnes ikke.");
+            }
+            viewModel.LocationId = room.LocationId; // Beholder lokasjonId for redirect
+            ModelState.Remove(nameof(viewModel.LocationId)); //Fjerner validering for LocationId, da den ikke skal endres
+            
+            if (!ModelState.IsValid)
+            {
+                return View(viewModel);
+            }
+
+            room.RoomName = viewModel.RoomName;
+            room.Capacity = viewModel.Capacity;
+            room.Building = viewModel.Building;
+
+            await _roomRepository.Update(room);
+            _logger.LogInformation(
+                "Rom '{RoomId}' er oppdatert på lokasjon '{LocationId}'", 
+                room.RoomId, room.LocationId);
+
+                return RedirectToAction("Rooms", new { locationId = room.LocationId });
+        }
+
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, 
+                "Feil ved oppdatering av rom '{RoomId}' på lokasjon '{LocationId}'", 
+                viewModel.RoomId, viewModel.LocationId);
+
+            ModelState.AddModelError(string.Empty, "En feil oppstod ved oppdatering av rommet. Vennligst prøv igjen.");
+            return View(viewModel);
+        }
+    }
+
+    // Viser lokasjonene på startsiden.
     public async Task<IActionResult> Index()
     {
         var locations = await _locationRepository.GetAllAsync();

@@ -29,6 +29,7 @@
     value="@Model.SearchQuery"
     class="form-control" 
     placeholder="Skriv romnavn" />
+
     @*Beholder bygg filter i felt etter søk*@
     <label for="building" class="form-label mt -3">Bygg:</label>
     <input type="text" 
@@ -37,6 +38,7 @@
            value="@Model.Building"
            class="form-control" 
            placeholder="Skriv bygg" />
+
     @*Filtrer på minst antall plasser i rommet*@
     <label for="minCapacity" class="form-label mt-3">Minste kapasitet:</label>
     <input type="number" 
@@ -66,6 +68,14 @@ else
                         <h2 class="h5">@room.RoomName</h2>
                         <p>Kapasitet: @room.Capacity personer</p>
                         <p>Bygg: @room.Building</p>
+                        
+                        @*Åpner skjema for oppdatering av rom*@
+                        <a asp-controller="RoomLocation" 
+                           asp-action="Update" 
+                           asp-route-roomId="@room.RoomId" 
+                           class="btn btn-primary">
+                            Rediger
+                        </a>
                     </div>
                 </div>
             </div>

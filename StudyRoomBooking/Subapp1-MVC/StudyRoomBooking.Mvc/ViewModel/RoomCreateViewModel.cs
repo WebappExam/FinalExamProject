@@ -3,6 +3,7 @@ namespace StudyRoomBooking.Mvc.viewModel;
 
 public class RoomCreateViewModel
 {
+
     //Knytter rom til valgt lokasjon
     [Range(1, int.MaxValue, ErrorMessage = "Velg en lokasjon")]
     public int LocationId { get; set; }
