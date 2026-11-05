@@ -15,7 +15,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Registrer repositoryet som controlleren bruker.
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
-
+builder.Services.AddScoped<IRoomRepository, RoomRepository>(); //lagt til room repository
 var app = builder.Build();
 
 // Legg inn eksempeldata med: dotnet run -- --seed

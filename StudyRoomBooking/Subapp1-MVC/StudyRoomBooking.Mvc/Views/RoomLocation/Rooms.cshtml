@@ -8,11 +8,54 @@
 
 <a href="@Url.Action("Index", "RoomLocation")">
     Tilbake til lokasjoner
+
 </a>
+
+@*Åpner skjema for oprettelse med valgt lokasjon*@
+<a asp-controller="RoomLocation" 
+   asp-action="Create" 
+   asp-route-locationId="@Model.LocationId" 
+   class="btn btn-primary ms-3">
+    Opprett nytt rom
+</a>
+
+@*Søker etter romnavn for valgt lokasjon*@
+<form asp-controller="RoomLocation" asp-action="Rooms" method="get" class="mt-3 mb-3">
+    <input type="hidden" name="locationId" value="@Model.LocationId" />
+    <label for="searchQuery" class ="form-label"> Søk etter romnavn:</label>
+    <input type="text" 
+    id ="searchQuery" 
+    name ="searchQuery"
+    value="@Model.SearchQuery"
+    class="form-control" 
+    placeholder="Skriv romnavn" />
+
+    @*Beholder bygg filter i felt etter søk*@
+    <label for="building" class="form-label mt -3">Bygg:</label>
+    <input type="text" 
+           id="building" 
+           name="building" 
+           value="@Model.Building"
+           class="form-control" 
+           placeholder="Skriv bygg" />
+
+    @*Filtrer på minst antall plasser i rommet*@
+    <label for="minCapacity" class="form-label mt-3">Minste kapasitet:</label>
+    <input type="number" 
+           id="minCapacity" 
+           name="minCapacity" 
+           value="@Model.MinCapacity"
+           min="1"
+           step="1"
+           class="form-control" 
+           placeholder="Skriv minste kapasitet" />
+    <button type="submit" class="btn btn-primary mt-2">Søk</button>
+    </form>
+
 
 @if (Model.Rooms.Count == 0)
 {
-    <p>Det finnes ingen rom på denne lokasjonen ennå.</p>
+    <p>Ingen rom å vise på denne lokasjonen. Søk på nytt eller tøm søkefeltet.</p>
 }
 else
 {
@@ -25,6 +68,21 @@ else
                         <h2 class="h5">@room.RoomName</h2>
                         <p>Kapasitet: @room.Capacity personer</p>
                         <p>Bygg: @room.Building</p>
+
+                        @*Åpner skjema for oppdatering av rom*@
+                        <a asp-controller="RoomLocation" 
+                           asp-action="Update" 
+                           asp-route-roomId="@room.RoomId" 
+                           class="btn btn-primary">
+                            Rediger
+                        </a>
+                        @*Åpner skjema for sletting av rom*@
+                        <a asp-controller="RoomLocation"
+                           asp-action="Delete" 
+                           asp-route-roomId="@room.RoomId" 
+                           class="btn btn-danger">
+                            Slett
+                        </a>
                     </div>
                 </div>
             </div>

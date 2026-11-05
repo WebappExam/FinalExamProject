@@ -8,5 +8,13 @@ public class LocationViewModel
 
     public string LocationName { get; set; } = string.Empty;
 
+    //Søketekst som skal vises i søkefelt
+    public string? SearchQuery { get; set; } 
+
+    //Bygget bruker ønsker å filtrere rom på
+    public string? Building { get; set; }
+
+    //Minste antall personer rom kan ha plass til
+    public int? MinCapacity { get; set; }
     public List<Room> Rooms { get; set; } = new();
 }

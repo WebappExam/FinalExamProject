@@ -1,0 +1,38 @@
+
+@model StudyRoomBooking.Mvc.viewModel.RoomDeleteViewModel
+
+@{
+    ViewData["Title"] = "Slett rom";
+}
+<h1>Slett rom</h1>
+<p>Er du sikker på at du vil slette rommet <strong>@Model.RoomName</strong>?</p>
+<div asp-validation-summary="All" class="text-danger"></div>
+<dl> 
+
+<dt>Romnavn:</dt>
+<dd>@Model.RoomName</dd>
+
+<dt>Bygg:</dt>
+<dd>@Model.Building</dd>
+
+<dt>Kapasitet:</dt>
+<dd>@Model.Capacity</dd>
+</dl>
+
+<form asp-controller="RoomLocation" asp-action= "Delete" method="post">
+
+@*Identifiserer rom som skal slettes*@
+<input asp-for="RoomId" type="hidden" />
+
+<button type="submit" class="btn btn-danger">
+    Slett 
+    </button>
+    
+<a asp-controller="RoomLocation"
+ asp-action="Rooms" 
+ asp-route-locationId="@Model.LocationId" 
+ class="btn btn-secondary">
+ Avbryt
+ </a>
+ </form>
+
