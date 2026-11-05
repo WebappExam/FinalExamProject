@@ -1,4 +1,5 @@
 using StudyRoomBooking.Mvc.Models;
+
 namespace StudyRoomBooking.Mvc.DAL;
 public interface IRoomRepository
 {
@@ -7,9 +8,11 @@ public interface IRoomRepository
 
     //Hent rom med Id
     Task<Room?> GetRoomById(int roomId);
-    
+
 
     //Lagrer endringer i et eksisterende rom
     Task Update(Room room);
     
+    //Sletter rom med Id
+    Task<bool> Delete(int roomId);
 }

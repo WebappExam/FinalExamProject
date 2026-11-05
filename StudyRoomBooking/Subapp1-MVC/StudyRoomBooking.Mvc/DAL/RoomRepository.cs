@@ -1,5 +1,6 @@
 using StudyRoomBooking.Mvc.Models;
 namespace StudyRoomBooking.Mvc.DAL;
+using Microsoft.EntityFrameworkCore;
 
 public class RoomRepository : IRoomRepository
 
@@ -30,4 +31,29 @@ public class RoomRepository : IRoomRepository
         _db.Rooms.Update(room);
         await _db.SaveChangesAsync();
     }
+
+//Sletter rom bare hvis det ikke finnes noen bookinger for rommet
+public async Task<bool> Delete(int roomId)
+    {
+        var room = await _db.Rooms
+            .Include(r => r.Bookings)
+            .FirstOrDefaultAsync(r => r.RoomId == roomId);
+
+        if (room == null || room.Bookings.Any())
+        {
+            // Rommet finnes, men har bookinger, så vi kan ikke slette det
+            return false;
+        }
+        _db.Rooms.Remove(room);
+        await _db.SaveChangesAsync();
+
+
+        return true;
+
+    }
+
+
+
+
+
 }

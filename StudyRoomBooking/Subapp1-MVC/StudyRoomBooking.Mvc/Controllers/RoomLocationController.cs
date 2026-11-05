@@ -25,7 +25,7 @@ public class RoomLocationController : Controller
         _logger = logger;
     }
 
-//Åpner skjema for å opprette et nytt rom på valgt 
+    //Åpner skjema for å opprette et nytt rom på valgt 
  [HttpGet]
     public async Task<IActionResult> Create(int locationId)
     {
@@ -156,6 +156,81 @@ public class RoomLocationController : Controller
         }
     }
 
+    //Viser rom før bruker sletter
+    [HttpGet]
+    public async Task<IActionResult> Delete(int roomId)
+    {
+        var room = await _roomRepository.GetRoomById(roomId);
+        if (room == null)
+        {
+            return NotFound("Rommet finnes ikke.");
+        }
+
+        var viewModel = new RoomDeleteViewModel
+        {
+            RoomId = room.RoomId,
+            LocationId = room.LocationId,
+            RoomName = room.RoomName,
+            Capacity = room.Capacity,
+            Building = room.Building
+        };
+
+        return View(viewModel);
+    }
+
+    //Tar imot skjema når bruker trykker slett
+    [HttpPost]
+    [ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int roomId)
+    {
+        var room = await _roomRepository.GetRoomById(roomId);
+        if (room == null)
+        {
+            return NotFound("Rommet finnes ikke.");
+        }
+
+        //Viser opplysninger hvis siden må lastes på nytt pga feil
+        var viewModel = new RoomDeleteViewModel
+        {
+            RoomId = room.RoomId,
+            LocationId = room.LocationId,
+            RoomName = room.RoomName,
+            Capacity = room.Capacity,
+            Building = room.Building
+        };
+
+        try
+        {
+            //Sletter bare hvis ingen bookinger finnes for rommet, ellers vises feilmelding
+            var deleted = await _roomRepository.Delete(roomId);
+            if (!deleted)
+            {
+                ModelState.AddModelError(string.Empty, "Rommet kan ikke slettes fordi det finnes bookinger for dette rommet.");
+                return View(viewModel);
+            }
+        
+        //Logger at rom er slettet
+        _logger.LogInformation(
+            "Rom '{RoomId}' er slettet fra lokasjon '{LocationId}'", 
+            room.RoomId, room.LocationId);
+            return RedirectToAction("Rooms", new { locationId = room.LocationId 
+            });
+        }
+
+            catch (Exception ex)
+        {
+            //Logger feilmelding hvis sletting av rom feiler med melding i skjema
+            _logger.LogError(ex, 
+                "Feil ved sletting av rom '{RoomId}' på lokasjon '{LocationId}'", 
+                room.RoomId, room.LocationId);
+
+            ModelState.AddModelError(string.Empty, "En feil oppstod ved sletting av rommet. Vennligst prøv igjen.");
+            return View(viewModel);
+        }
+
+    }
+
     // Viser lokasjonene på startsiden.
     public async Task<IActionResult> Index()
     {
@@ -190,7 +265,8 @@ public class RoomLocationController : Controller
     }
 
     //Filtrerer videre på bygg hvis bruker har skrevet inn i søkefeltet
-if (!string.IsNullOrWhiteSpace(building))
+    
+    if (!string.IsNullOrWhiteSpace(building))
 
     {
         rooms = rooms.Where(room => 
@@ -198,7 +274,7 @@ if (!string.IsNullOrWhiteSpace(building))
     }
 
     //Filtrerer videre på min kapasitet hvis bruker har skrevet inn i søkefeltet
-if (minCapacity.HasValue)
+    if (minCapacity.HasValue)
     {
         rooms = rooms.Where(room => room.Capacity >= minCapacity.Value);
     }

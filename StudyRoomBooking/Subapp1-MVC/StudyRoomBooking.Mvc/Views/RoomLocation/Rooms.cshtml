@@ -68,13 +68,20 @@ else
                         <h2 class="h5">@room.RoomName</h2>
                         <p>Kapasitet: @room.Capacity personer</p>
                         <p>Bygg: @room.Building</p>
-                        
+
                         @*Åpner skjema for oppdatering av rom*@
                         <a asp-controller="RoomLocation" 
                            asp-action="Update" 
                            asp-route-roomId="@room.RoomId" 
                            class="btn btn-primary">
                             Rediger
+                        </a>
+                        @*Åpner skjema for sletting av rom*@
+                        <a asp-controller="RoomLocation"
+                           asp-action="Delete" 
+                           asp-route-roomId="@room.RoomId" 
+                           class="btn btn-danger">
+                            Slett
                         </a>
                     </div>
                 </div>
