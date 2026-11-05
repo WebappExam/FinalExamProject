@@ -65,6 +65,29 @@ namespace StudyRoomBooking.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Locations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Building = "Pilestredet",
+                            Floor = 3,
+                            RoomNumber = "P301"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Building = "Holmlia",
+                            Floor = 1,
+                            RoomNumber = "H101"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Building = "Kjeller",
+                            Floor = 2,
+                            RoomNumber = "K201"
+                        });
                 });
 
             modelBuilder.Entity("StudyRoomBooking.Models.Facility", b =>
