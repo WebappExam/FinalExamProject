@@ -66,8 +66,10 @@ else
                 <div class="card">
                     <div class="card-body">
                         <h2 class="h5">@room.RoomName</h2>
-                        <p>Kapasitet: @room.Capacity personer</p>
-                        <p>Bygg: @room.Building</p>
+                        <p>Capacity: @room.Capacity persons</p>
+                        <p>Building: @room.Building</p>
+                        <p>Room type: @room.RoomType</p>
+                        <p>Available: @room.Available</p>
 
                         @*Åpner skjema for oppdatering av rom*@
                         <a asp-controller="RoomLocation" 

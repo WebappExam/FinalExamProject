@@ -262,6 +262,10 @@ namespace StudyRoomBooking.Mvc.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Available")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Building")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -274,6 +278,10 @@ namespace StudyRoomBooking.Mvc.Data.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("RoomName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RoomType")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
