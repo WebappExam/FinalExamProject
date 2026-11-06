@@ -99,21 +99,30 @@ public class RoomBookingController : Controller
             return View(viewModel);
         }
 
+        //Henter Id til inlogget bruker
+        var organizerId = User.FindFirst (
+            System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(organizerId))
+        { 
+            ModelState.AddModelError(
+            string.Empty,
+            "Du må være innlogget for å booke et rom");
+            
+            return View(viewModel);
+        }
+
         var booking = new Models.RoomBooking
         {
             RoomId = viewModel.RoomId,
             StartTime = viewModel.StartTime.Value,
             EndTime = viewModel.EndTime.Value,
             Course = viewModel.Course,
-            Description = viewModel.Description ?? string.Empty
+            Description = viewModel.Description ?? string.Empty,
+            OrganizerId = organizerId
         };
 
         // Lagring aktiveres når brukerkobling er klar
-        // await _roomBookingRepository.Create(booking);
-
-       ModelState.AddModelError (
-        string.Empty,
-        "Booking kan ikke lagres før brukerkobling er klar");
-        return View(viewModel);
+        await _roomBookingRepository.Create(booking);
+         return RedirectToAction ("Index","RoomLocation");
         }
     }
