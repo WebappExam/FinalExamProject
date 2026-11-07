@@ -5,6 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+//Gjør booking repository tilgjengelig for controlleren
+builder.Services.AddScoped<IRoomBookingRepository, RoomBookingRepository>();
+
 // Registrer databasekonteksten med SQLite.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(

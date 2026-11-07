@@ -83,6 +83,13 @@ else
                            class="btn btn-danger">
                             Slett
                         </a>
+                        @*Åpner bookingskjema for valgt rom*@
+                        <a asp-controller="RoomBooking" 
+                           asp-action="Create" 
+                           asp-route-roomId="@room.RoomId" 
+                           class="btn btn-success">
+                            Book rom
+                        </a>
                     </div>
                 </div>
             </div>
