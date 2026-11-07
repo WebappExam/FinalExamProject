@@ -26,4 +26,17 @@ public class RoomBookingRepository : IRoomBookingRepository
         _db.RoomBookings.Add(booking);
         await _db.SaveChangesAsync();
     }
+
+    //Henter brukers bookinger med informasjon om rommet
+    public async Task<IEnumerable<RoomBooking>> GetByOrganizerIdAsync(
+        string organizerId)
+    { 
+        return await _db.RoomBookings
+    .AsNoTracking()
+    .Where(booking => booking.OrganizerId == organizerId)
+    .Include(booking => booking.Room)
+    .OrderBy(booking => booking.StartTime)
+    .ToListAsync ();
+
+}
 }

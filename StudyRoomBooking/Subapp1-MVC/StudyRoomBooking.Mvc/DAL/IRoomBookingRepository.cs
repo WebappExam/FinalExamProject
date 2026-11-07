@@ -10,4 +10,6 @@ public interface IRoomBookingRepository
     //Lagrer ny booking
     Task Create(RoomBooking booking);
     
+    //Tar imot brukerId og returnerer en samling bookinger
+    Task<IEnumerable<RoomBooking>> GetByOrganizerIdAsync(string organizerId);
 }
