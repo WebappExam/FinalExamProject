@@ -25,4 +25,8 @@ public int RoomId { get; set; }
     ErrorMessage = "Byggnavn må ha mellom 2 og 50 tegn")]
     public string Building { get; set; } = string.Empty;
 
+    public string RoomType { get; set; } = string.Empty;
+
+    public string Available { get; set; } = string.Empty;
+
 }

@@ -43,6 +43,10 @@ public class Room
 
     public Location Location { get; set; } = null!;
 
+    public string RoomType { get; set; } = string.Empty;
+
+    public string Available { get; set;} = string.Empty;
+
 
     // Navigation property for bookings associated with the room
     public ICollection<RoomBooking> Bookings { get; set; } = new List<RoomBooking>();

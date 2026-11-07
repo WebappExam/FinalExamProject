@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using StudyRoomBooking.Mvc.Models;
 namespace StudyRoomBooking.Mvc.viewModel;
 
 public class RoomCreateViewModel
@@ -21,5 +22,9 @@ public class RoomCreateViewModel
     [StringLength(50, MinimumLength = 2,
     ErrorMessage = "Byggnavn må ha mellom 2 og 50 tegn")]
     public string Building { get; set; } = string.Empty;
+
+    public string RoomType { get; set; } = string.Empty;
+
+    public string Available { get; set; } = string.Empty;
 
 }
