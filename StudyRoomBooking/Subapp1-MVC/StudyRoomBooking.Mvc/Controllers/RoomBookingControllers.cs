@@ -160,5 +160,36 @@ public class RoomBookingController : Controller
 
     return View(viewModels);
 }
+
+    //Kansellere en booking
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Cancel(int bookingId)
+    {
+        
+    //Hent Id til innlogget bruker
+    var organizerId = User.FindFirst(
+        System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (User.Identity?.IsAuthenticated != true ||
+        string.IsNullOrEmpty(organizerId))
+        {
+            return Unauthorized();
+        }
+
+        var booking = await _roomBookingRepository.GetRoomBookingAsync(bookingId);
+
+        if (booking == null)
+        {
+            return NotFound();
+        }
+
+        //Sletter booking 
+        await _roomBookingRepository.DeleteAsync(booking);
+
+        //Sender bruker tilbake til Mine bookinger
+        return RedirectToAction(nameof(MyBookings));
+
     }
+}
 
