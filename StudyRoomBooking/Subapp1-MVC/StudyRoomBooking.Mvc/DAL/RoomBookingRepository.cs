@@ -26,4 +26,31 @@ public class RoomBookingRepository : IRoomBookingRepository
         _db.RoomBookings.Add(booking);
         await _db.SaveChangesAsync();
     }
+
+    //Henter en booking basert på booking-Id
+    public async Task<RoomBooking?> GetRoomBookingAsync (int bookingId)
+    {
+        return await _db.RoomBookings.FindAsync(bookingId);
+    }
+
+    //Slett en booking fra database
+    public async Task DeleteAsync(RoomBooking booking)
+    {
+        _db.RoomBookings.Remove(booking);
+        await _db.SaveChangesAsync();
+    
+    }
+
+    //Henter brukers bookinger med informasjon om rommet
+    public async Task<IEnumerable<RoomBooking>> GetByOrganizerIdAsync(
+        string organizerId)
+    { 
+        return await _db.RoomBookings
+    .AsNoTracking()
+    .Where(booking => booking.OrganizerId == organizerId)
+    .Include(booking => booking.Room)
+    .OrderBy(booking => booking.StartTime)
+    .ToListAsync ();
+
+}
 }

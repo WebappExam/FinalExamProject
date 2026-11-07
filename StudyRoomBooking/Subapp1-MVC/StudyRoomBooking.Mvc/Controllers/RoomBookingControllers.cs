@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using StudyRoomBooking.Mvc.DAL;
+using StudyRoomBooking.Mvc.Models;
 using StudyRoomBooking.Mvc.viewModel;
 
 namespace StudyRoomBooking.Mvc.Controllers;
@@ -125,4 +126,70 @@ public class RoomBookingController : Controller
         await _roomBookingRepository.Create(booking);
          return RedirectToAction ("Index","RoomLocation");
         }
+
+        //Viser bookinger til innlogget bruker
+        [HttpGet]
+        public async Task<IActionResult> MyBookings()
+
+        {
+            var organizerId = User.FindFirst (System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            //Henter ingen bookinger hvis bruker ikke er innlogget
+            if (User.Identity?.IsAuthenticated != true ||
+            string.IsNullOrEmpty(organizerId))
+        {
+            return Unauthorized("Du må være innlogget for å se dine bookinger");
+        }
+
+        //Henter booking til innlogget bruker
+        var bookings = await _roomBookingRepository
+        .GetByOrganizerIdAsync(organizerId);
+
+        //Velger opplysninger osm skal vises på siden
+
+        var viewModels = bookings.Select(booking =>
+        new RoomBookingListViewModel
+    {
+        BookingId= booking.Id,
+        RoomName = booking.Room.RoomName,
+        Building = booking.Room.Building, 
+        Course = booking.Course, 
+        StartTime = booking.StartTime,
+        EndTime = booking.EndTime
+    }).ToList();
+
+    return View(viewModels);
+}
+
+    //Kansellere en booking
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Cancel(int bookingId)
+    {
+        
+    //Hent Id til innlogget bruker
+    var organizerId = User.FindFirst(
+        System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (User.Identity?.IsAuthenticated != true ||
+        string.IsNullOrEmpty(organizerId))
+        {
+            return Unauthorized();
+        }
+
+        var booking = await _roomBookingRepository.GetRoomBookingAsync(bookingId);
+
+        if (booking == null)
+        {
+            return NotFound();
+        }
+
+        //Sletter booking 
+        await _roomBookingRepository.DeleteAsync(booking);
+
+        //Sender bruker tilbake til Mine bookinger
+        return RedirectToAction(nameof(MyBookings));
+
     }
+}
+
