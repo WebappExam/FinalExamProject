@@ -9,5 +9,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Location> Locations { get; set; }
     public DbSet<Room> Rooms { get; set; }
 
-    public DbSet<RoomBooking> RoomBookings { get; set; }
+    public DbSet<RoomBooking> RoomBooking { get; set; }
 }
