@@ -1,34 +1,89 @@
 @model List<StudyRoomBooking.Mvc.viewModel.LocationViewModel>
 
+
 @{
     ViewData["Title"] = "Velg lokasjon";
 }
 
-<h1>Book et grupperom</h1>
-<p>Velg hvor du ønsker å finne rom.</p>
+<div class="container mt-4">
 
-@if (Model.Count == 0)
-{
-    <p>Ingen lokasjoner er lagt til ennå.</p>
-}
-else
-{
-    <div class="row">
-        @foreach (var location in Model)
-        {
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h2 class="h4">@location.LocationName</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Book et grupperom</h1>
+            <p class="text-muted">
+                Velg hvor du ønsker å finne rom.
+            </p>
+        </div>
 
-                        <a href="@Url.Action("Rooms", "RoomLocation",
-                                     new { locationId = location.LocationId })"
-                           class="btn btn-primary">
-                            Se rom
-                        </a>
+        <!-- Location creation -->
+        <a asp-controller="RoomLocation"
+           asp-action="CreateLocation"
+           class="btn btn-success">
+            + Legg til lokasjon
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string message)
+    {
+        <div class="alert alert-success" role="alert">
+            @message
+        </div>
+    }
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            Ingen lokasjoner er lagt til ennå.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var location in Model)
+            {
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+
+                            <h2 class="h4">
+                                @location.LocationName
+                            </h2>
+
+                            <p class="text-muted">
+                                Se tilgjengelige grupperom på denne lokasjonen.
+                            </p>
+
+                            <div class="d-flex flex-wrap gap-2 mt-3">
+
+                                <!-- Existing room navigation -->
+                                <a asp-controller="RoomLocation"
+                                   asp-action="Rooms"
+                                   asp-route-locationId="@location.LocationId"
+                                   class="btn btn-primary">
+                                    Se rom
+                                </a>
+
+                                <!-- Edit location -->
+                                <a asp-controller="RoomLocation"
+                                   asp-action="EditLocation"
+                                   asp-route-id="@location.LocationId"
+                                   class="btn btn-outline-secondary">
+                                    Rediger
+                                </a>
+
+                                <!-- Delete location -->
+                                <a asp-controller="RoomLocation"
+                                   asp-action="DeleteLocation"
+                                   asp-route-id="@location.LocationId"
+                                   class="btn btn-outline-danger">
+                                    Slett
+                                </a>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
-}
+            }
+        </div>
+    }
+</div>

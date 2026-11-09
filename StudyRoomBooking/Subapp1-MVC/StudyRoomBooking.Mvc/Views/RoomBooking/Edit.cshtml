@@ -1,0 +1,94 @@
+
+@model StudyRoomBooking.Mvc.viewModel.RoomBookingEditViewModel
+
+@{
+    ViewData["Title"] = "Rediger booking";
+}
+
+<div class="container mt-4">
+    <h1>Rediger booking</h1>
+
+    <p class="text-muted">
+        Rom: @Model.RoomName
+    </p>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+
+            <form asp-action="Edit"
+                  asp-route-id="@Model.Id"
+                  method="post">
+
+                <input asp-for="Id" type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="StartTime"
+                           class="form-label">Starttid</label>
+
+                    <input asp-for="StartTime"
+                           type="datetime-local"
+                           asp-format="{0:yyyy-MM-ddTHH:mm}"
+                           class="form-control" />
+
+                    <span asp-validation-for="StartTime"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="EndTime"
+                           class="form-label">Sluttid</label>
+
+                    <input asp-for="EndTime"
+                           type="datetime-local"
+                           asp-format="{0:yyyy-MM-ddTHH:mm}"
+                           class="form-control" />
+
+                    <span asp-validation-for="EndTime"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Course"
+                           class="form-label">Kursnavn</label>
+
+                    <input asp-for="Course"
+                           class="form-control" />
+
+                    <span asp-validation-for="Course"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description"
+                           class="form-label">Beskrivelse</label>
+
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="4"></textarea>
+
+                    <span asp-validation-for="Description"
+                          class="text-danger"></span>
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Lagre endringer
+                </button>
+
+                <a asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-outline-secondary">
+                    Avbryt
+                </a>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
