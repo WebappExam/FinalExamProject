@@ -1,0 +1,51 @@
+@model StudyRoomBooking.Mvc.viewModel.RoomBookingDetailsViewModel
+
+@{
+    ViewData["Title"] = "Booking Details";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <h2>@Model.Course</h2>
+
+            <hr />
+
+            <p><strong>Room:</strong> @Model.RoomName</p>
+
+            <p>
+                <strong>Start:</strong>
+                @Model.StartTime.ToString("dd MMM yyyy HH:mm")
+            </p>
+
+            <p>
+                <strong>End:</strong>
+                @Model.EndTime.ToString("dd MMM yyyy HH:mm")
+            </p>
+
+            <h5>Description</h5>
+
+            <p>
+                @(string.IsNullOrWhiteSpace(Model.Description)
+                    ? "No description provided."
+                    : Model.Description)
+            </p>
+
+<a asp-action="Edit"
+   asp-route-id="@Model.Id"
+   class="btn btn-warning">
+    Rediger booking
+</a>
+    <a asp-action="Delete"
+   asp-route-id="@Model.Id"
+   class="btn btn-danger">
+    Slett booking
+</a>
+     <a asp-action="Index"
+        class="btn btn-outline-secondary">
+       Back to Study Sessions
+  </a>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+@model List<StudyRoomBooking.Mvc.viewModel.RoomBookingDetailsViewModel>
+
+@{
+    ViewData["Title"] = "Study Sessions";
+}
+
+<div class="container mt-4">
+    <h1>Study Sessions</h1>
+    <p class="text-muted">
+        Browse scheduled study sessions.
+    </p>
+    
+ @* Display success message after deleting a booking *@
+    @if (TempData["SuccessMessage"] is string message)
+    {
+        <div class="alert alert-success" role="alert">
+            @message
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No study sessions have been created yet.
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var booking in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                @booking.Course
+                            </h5>
+
+                            <p class="card-text">
+                                <strong>Room:</strong> @booking.RoomName
+                            </p>
+
+                            <p>
+                                <strong>Start:</strong>
+                                @booking.StartTime.ToString("dd MMM yyyy HH:mm")
+                            </p>
+
+                            <p>
+                                <strong>End:</strong>
+                                @booking.EndTime.ToString("dd MMM yyyy HH:mm")
+                            </p>
+
+                            <a asp-controller="RoomBooking"
+                               asp-action="Details"
+                               asp-route-id="@booking.Id"
+                               class="btn btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
