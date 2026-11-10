@@ -39,6 +39,51 @@ button.accept-policy {
   line-height: inherit;
 }
 
+/*--- header start ---*/
+.site-header {
+  background-color: rgb(255, 213, 0);
+  padding: 0.75rem 1rem;
+}
+
+.site-header-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #000;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.site-header-brand:hover,
+.site-header-brand:focus {
+  color: #000;
+}
+
+.site-header-brand img {
+  display: block;
+  width: auto;
+  height: 3.25rem;
+}
+
+.site-header .navbar-nav {
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.site-header .nav-link {
+  color: #000;
+  font-weight: 600;
+}
+
+.site-header .nav-link:hover,
+.site-header .nav-link:focus {
+  text-decoration: underline;
+}
+
+.site-header .navbar-toggler {
+  border-color: rgba(0, 0, 0, 0.5);
+}
+
 /*--- footer start ---*/
 .bottom-footer {
   background-color: rgb(255, 213, 0);
