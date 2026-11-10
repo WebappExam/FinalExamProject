@@ -7,7 +7,7 @@ for details on configuring this project to bundle and minify static web assets. 
   padding: 0.75rem 1rem;
 }
 
-.site-header-brand {
+.site-header ::deep .site-header-brand {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
@@ -16,33 +16,33 @@ for details on configuring this project to bundle and minify static web assets. 
   font-weight: 700;
 }
 
-.site-header-brand:hover,
-.site-header-brand:focus {
+.site-header ::deep .site-header-brand:hover,
+.site-header ::deep .site-header-brand:focus {
   color: #000;
 }
 
-.site-header-brand img {
+.site-header ::deep .site-header-brand img {
   display: block;
   width: auto;
   height: 3.25rem;
 }
 
-.site-header .navbar-nav {
+.site-header ::deep .navbar-nav {
   justify-content: flex-end;
   gap: 0.5rem;
 }
 
-.site-header .nav-link {
+.site-header ::deep .nav-link {
   color: #000;
   font-weight: 600;
 }
 
-.site-header .nav-link:hover,
-.site-header .nav-link:focus {
+.site-header ::deep .nav-link:hover,
+.site-header ::deep .nav-link:focus {
   text-decoration: underline;
 }
 
-.site-header .navbar-toggler {
+.site-header ::deep .navbar-toggler {
   border-color: rgba(0, 0, 0, 0.5);
 }
 
