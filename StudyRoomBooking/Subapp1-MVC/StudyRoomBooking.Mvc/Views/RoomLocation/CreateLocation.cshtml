@@ -1,0 +1,39 @@
+
+@model StudyRoomBooking.Mvc.viewModel.LocationFormViewModel
+
+@{
+    ViewData["Title"] = "Ny lokasjon";
+}
+
+<div class="container mt-4">
+    <h1>Opprett lokasjon</h1>
+
+    <form asp-action="CreateLocation" method="post">
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">
+                Lokasjonsnavn
+            </label>
+
+            <input asp-for="Name" class="form-control" />
+
+            <span asp-validation-for="Name"
+                  class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Opprett lokasjon
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Avbryt
+        </a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

@@ -1,0 +1,42 @@
+
+@model StudyRoomBooking.Mvc.Models.Location
+
+@{
+    ViewData["Title"] = "Slett lokasjon";
+}
+
+<div class="container mt-4">
+    <h1>Slett lokasjon</h1>
+
+    <div class="alert alert-warning">
+        Er du sikker på at du vil slette
+        <strong>@Model.Name</strong>?
+    </div>
+
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger mb-3"></div>
+
+    @if (Model.Rooms.Any())
+    {
+        <div class="alert alert-danger">
+            Denne lokasjonen har @Model.Rooms.Count rom
+            og kan ikke slettes før rommene er fjernet.
+        </div>
+    }
+    else
+    {
+        <form asp-action="DeleteLocation"
+              asp-route-id="@Model.LocationId"
+              method="post">
+
+            <button type="submit" class="btn btn-danger">
+                Ja, slett lokasjon
+            </button>
+        </form>
+    }
+
+    <a asp-action="Index"
+       class="btn btn-secondary mt-3">
+        Avbryt
+    </a>
+</div>
