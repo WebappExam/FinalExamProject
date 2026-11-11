@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using StudyRoomBooking.Mvc.DAL;
+using StudyRoomBooking.Mvc.Models;
 using StudyRoomBooking.Mvc.viewModel;
 
 namespace StudyRoomBooking.Mvc.Controllers;
@@ -19,32 +20,48 @@ public class RoomBookingController : Controller
     }
 
     //Åpner bookingsiden for et gitt rom
-    [HttpGet]
-    public async Task<IActionResult> Create(int roomId)
+
+[HttpGet]
+public async Task<IActionResult> Create(int roomId)
+{
+    // Validate room ID
+    if (roomId <= 0)
     {
-        var room = await _roomRepository.GetRoomById(roomId);
-        if (room == null)
-        {
-            return NotFound();
-        }
-
-    //Henter dagens dato og klokkeslett uten sekunder/millisekunder
-        var now = DateTime.Now;
-        var startTime = new DateTime (
-        now.Year,now.Month,now.Day,
-        now.Hour,now.Minute,0
-        );
-
-    //Sender rominfo til skjema
-        var viewModel = new RoomBookingCreateViewModel
-        {
-            RoomId = roomId,
-            RoomName = room.RoomName,
-            StartTime = startTime,
-            EndTime = startTime.AddHours(1)
-        };
-        return View(viewModel);
+        return BadRequest("Please select a room before booking.");
     }
+
+    // Retrieve room from database
+    var room = await _roomRepository.GetRoomById(roomId);
+
+    // Check if room exists
+    if (room == null)
+    {
+        return NotFound("The selected room does not exist.");
+    }
+
+    // Get current date and time without seconds
+    var now = DateTime.Now;
+
+    var startTime = new DateTime(
+        now.Year,
+        now.Month,
+        now.Day,
+        now.Hour,
+        now.Minute,
+        0
+    );
+
+    // Prepare booking form
+    var viewModel = new RoomBookingCreateViewModel
+    {
+        RoomId = roomId,
+        RoomName = room.RoomName,
+        StartTime = startTime,
+        EndTime = startTime.AddHours(1)
+    };
+
+    return View(viewModel);
+}
 
 
  //POST metode
@@ -125,4 +142,289 @@ public class RoomBookingController : Controller
         await _roomBookingRepository.Create(booking);
          return RedirectToAction ("Index","RoomLocation");
         }
+
+        //Viser bookinger til innlogget bruker
+        [HttpGet]
+        public async Task<IActionResult> MyBookings()
+
+        {
+            var organizerId = User.FindFirst (System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            //Henter ingen bookinger hvis bruker ikke er innlogget
+            if (User.Identity?.IsAuthenticated != true ||
+            string.IsNullOrEmpty(organizerId))
+        {
+            return Unauthorized("Du må være innlogget for å se dine bookinger");
+        }
+
+        //Henter booking til innlogget bruker
+        var bookings = await _roomBookingRepository
+        .GetByOrganizerIdAsync(organizerId);
+
+        //Velger opplysninger osm skal vises på siden
+
+        var viewModels = bookings.Select(booking =>
+        new RoomBookingListViewModel
+    {
+        BookingId= booking.Id,
+        RoomName = booking.Room.RoomName,
+        Building = booking.Room.Building, 
+        Course = booking.Course, 
+        StartTime = booking.StartTime,
+        EndTime = booking.EndTime
+    }).ToList();
+
+        return View(viewModels);
+
+        }
+    
+        // GET: RoomBooking/Index
+        [HttpGet]
+        public async Task<IActionResult> Index()
+{
+    var bookings = await _roomBookingRepository.GetAllAsync();
+
+    var viewModels = new List<RoomBookingDetailsViewModel>();
+
+    foreach (var booking in bookings)
+    {
+        var room = await _roomRepository.GetRoomById(booking.RoomId);
+
+        viewModels.Add(new RoomBookingDetailsViewModel
+        {
+            Id = booking.Id,
+            RoomId = booking.RoomId,
+            RoomName = room?.RoomName ?? "Unknown room",
+            Course = booking.Course,
+            Description = booking.Description,
+            StartTime = booking.StartTime,
+            EndTime = booking.EndTime
+        });
+    }
+    return View(viewModels);
+}
+
+    //Kansellere en booking
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Cancel(int bookingId)
+    {
+        
+    //Hent Id til innlogget bruker
+    var organizerId = User.FindFirst(
+        System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (User.Identity?.IsAuthenticated != true ||
+        string.IsNullOrEmpty(organizerId))
+        {
+            return Unauthorized();
+        }
+
+        var booking = await _roomBookingRepository.GetRoomBookingAsync(bookingId);
+
+    if (booking == null)
+            {
+                return NotFound();
+            }
+            //Bruker kan bare kansallere egne bookinger
+            if (booking.OrganizerId != organizerId)
+            {
+                return Forbid();
+            }
+            await _roomBookingRepository.DeleteAsync(booking);
+            return RedirectToAction(nameof(MyBookings));
+    }
+
+// GET: RoomBooking/Details/5
+[HttpGet]
+public async Task<IActionResult> Details(int id)
+{
+    var booking = await _roomBookingRepository.GetByIdAsync(id);
+
+    if (booking == null)
+    {
+        return NotFound();
+    }
+
+    var room = await _roomRepository.GetRoomById(booking.RoomId);
+
+    var viewModel = new RoomBookingDetailsViewModel
+    {
+        Id = booking.Id,
+        RoomId = booking.RoomId,
+        RoomName = room?.RoomName ?? "Unknown room",
+        Course = booking.Course,
+        Description = booking.Description,
+        StartTime = booking.StartTime,
+        EndTime = booking.EndTime
+    };
+
+    return View(viewModel);
+}
+
+    // GET: RoomBooking/Edit/5
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var booking = await _roomBookingRepository.GetByIdAsync(id);
+
+        if (booking == null)
+        {
+            return NotFound();
+        }
+
+        var room = await _roomRepository.GetRoomById(booking.RoomId);
+
+        var viewModel = new RoomBookingEditViewModel
+        {
+            Id = booking.Id,
+            RoomId = booking.RoomId,
+            RoomName = room?.RoomName ?? "Unknown room",
+            StartTime = booking.StartTime,
+            EndTime = booking.EndTime,
+            Course = booking.Course,
+            Description = booking.Description
+        };
+
+        return View(viewModel);
+    }
+
+    // POST: RoomBooking/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(
+        int id,
+        RoomBookingEditViewModel viewModel)
+    {
+        if (id != viewModel.Id)
+        {
+            return BadRequest();
+        }
+
+        var existingBooking =
+            await _roomBookingRepository.GetByIdAsync(id);
+
+        if (existingBooking == null)
+        {
+            return NotFound();
+        }
+
+        var room =
+            await _roomRepository.GetRoomById(existingBooking.RoomId);
+
+        viewModel.RoomId = existingBooking.RoomId;
+        viewModel.RoomName = room?.RoomName ?? "Unknown room";
+
+        if (viewModel.StartTime.HasValue &&
+            viewModel.StartTime.Value < DateTime.Now)
+        {
+            ModelState.AddModelError(
+                nameof(viewModel.StartTime),
+                "Starttidspunkt kan ikke være i fortiden.");
+        }
+
+        if (viewModel.StartTime.HasValue &&
+            viewModel.EndTime.HasValue &&
+            viewModel.StartTime.Value >= viewModel.EndTime.Value)
+        {
+            ModelState.AddModelError(
+                nameof(viewModel.EndTime),
+                "Sluttidspunkt må være etter starttidspunkt.");
+        }
+
+        if (!ModelState.IsValid ||
+            !viewModel.StartTime.HasValue ||
+            !viewModel.EndTime.HasValue)
+        {
+            return View(viewModel);
+        }
+
+        bool hasOverlap =
+            await _roomBookingRepository.HasOverlappingBookingsAsync(
+                existingBooking.RoomId,
+                viewModel.StartTime.Value,
+                viewModel.EndTime.Value,
+                existingBooking.Id);
+
+        if (hasOverlap)
+        {
+            ModelState.AddModelError(
+                string.Empty,
+                "Rommet er allerede booket i denne tidsperioden.");
+
+            return View(viewModel);
+        }
+
+        // Update only the permitted booking fields.
+        // Preserve OrganizerId, RoomId and Participants.
+        existingBooking.StartTime = viewModel.StartTime.Value;
+        existingBooking.EndTime = viewModel.EndTime.Value;
+        existingBooking.Course = viewModel.Course;
+        existingBooking.Description =
+            viewModel.Description ?? string.Empty;
+
+        await _roomBookingRepository.UpdateAsync(existingBooking);
+
+        TempData["SuccessMessage"] =
+            "Bookingen ble oppdatert.";
+
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    // GET: RoomBooking/Delete/5
+    [HttpGet]
+    public async Task<IActionResult> Delete(int id)
+    {
+        if (id <= 0)
+        {
+            return BadRequest();
+        }
+
+        var booking = await _roomBookingRepository.GetByIdAsync(id);
+
+        if (booking == null)
+        {
+            return NotFound();
+        }
+
+        var room = await _roomRepository.GetRoomById(booking.RoomId);
+
+        var viewModel = new RoomBookingDetailsViewModel
+        {
+            Id = booking.Id,
+            RoomId = booking.RoomId,
+            RoomName = room?.RoomName ?? "Unknown room",
+            Course = booking.Course,
+            Description = booking.Description,
+            StartTime = booking.StartTime,
+            EndTime = booking.EndTime
+        };
+
+        return View(viewModel);
+    }
+
+    // POST: RoomBooking/Delete/5
+    [HttpPost]
+    [ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        if (id <= 0)
+        {
+            return BadRequest();
+        }
+
+        var deleted = await _roomBookingRepository.DeleteAsync(id);
+
+        if (!deleted)
+        {
+            return NotFound();
+        }
+
+        TempData["SuccessMessage"] =
+            "Bookingen ble slettet.";
+
+        return RedirectToAction(nameof(Index));
+
+         } 
     }

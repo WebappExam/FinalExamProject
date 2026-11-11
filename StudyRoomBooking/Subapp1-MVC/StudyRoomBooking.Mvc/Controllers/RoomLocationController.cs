@@ -293,4 +293,200 @@ public class RoomLocationController : Controller
 
         return View(viewModel);
     }
+    
+    // GET: RoomLocation/CreateLocation
+    [HttpGet]
+    public IActionResult CreateLocation()
+    {
+        return View(new LocationFormViewModel());
+    }
+
+    // POST: RoomLocation/CreateLocation
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateLocation(
+        LocationFormViewModel viewModel)
+    {
+        if (!ModelState.IsValid)
+            return View(viewModel);
+
+        var name = viewModel.Name.Trim();
+
+        if (await _locationRepository.NameExistsAsync(name))
+        {
+            ModelState.AddModelError(
+                nameof(viewModel.Name),
+                "Denne lokasjonen finnes allerede.");
+
+            return View(viewModel);
+        }
+
+        try
+        {
+            var location = new Location { Name = name };
+
+            await _locationRepository.CreateAsync(location);
+
+            _logger.LogInformation(
+                "Lokasjon {LocationId} ble opprettet",
+                location.LocationId);
+
+            TempData["SuccessMessage"] =
+                "Lokasjonen ble opprettet.";
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Feil ved opprettelse av lokasjon");
+
+            ModelState.AddModelError(
+                string.Empty,
+                "Kunne ikke lagre lokasjonen.");
+
+            return View(viewModel);
+        }
+    }
+
+    // GET: RoomLocation/EditLocation/5
+    [HttpGet]
+    public async Task<IActionResult> EditLocation(int id)
+    {
+        var location = await _locationRepository.GetByIdAsync(id);
+
+        if (location == null)
+            return NotFound();
+
+        return View(new LocationFormViewModel
+        {
+            LocationId = location.LocationId,
+            Name = location.Name
+        });
+    }
+
+    // POST: RoomLocation/EditLocation/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditLocation(
+        int id,
+        LocationFormViewModel viewModel)
+    {
+        if (id != viewModel.LocationId)
+            return BadRequest();
+
+        var location = await _locationRepository.GetByIdAsync(id);
+
+        if (location == null)
+            return NotFound();
+
+        if (!ModelState.IsValid)
+            return View(viewModel);
+
+        var name = viewModel.Name.Trim();
+
+        if (await _locationRepository.NameExistsAsync(name, id))
+        {
+            ModelState.AddModelError(
+                nameof(viewModel.Name),
+                "En annen lokasjon har allerede dette navnet.");
+
+            return View(viewModel);
+        }
+
+        try
+        {
+            location.Name = name;
+
+            await _locationRepository.UpdateAsync(location);
+
+            _logger.LogInformation(
+                "Lokasjon {LocationId} ble oppdatert", id);
+
+            TempData["SuccessMessage"] =
+                "Lokasjonen ble oppdatert.";
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Feil ved oppdatering av lokasjon {LocationId}", id);
+
+            ModelState.AddModelError(
+                string.Empty,
+                "Kunne ikke oppdatere lokasjonen.");
+
+            return View(viewModel);
+        }
+    }
+
+    // GET: RoomLocation/DeleteLocation/5
+    [HttpGet]
+    public async Task<IActionResult> DeleteLocation(int id)
+    {
+        var location =
+            await _locationRepository.GetWithRoomsAsync(id);
+
+        if (location == null)
+            return NotFound();
+
+        return View(location);
+    }
+
+    // POST: RoomLocation/DeleteLocation/5
+    [HttpPost]
+    [ActionName("DeleteLocation")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteLocationConfirmed(int id)
+    {
+        var location =
+            await _locationRepository.GetWithRoomsAsync(id);
+
+        if (location == null)
+            return NotFound();
+
+        if (location.Rooms.Any())
+        {
+            ModelState.AddModelError(
+                string.Empty,
+                "Lokasjonen kan ikke slettes fordi den har rom.");
+
+            return View("DeleteLocation", location);
+        }
+
+        try
+        {
+            bool deleted = await _locationRepository.DeleteAsync(id);
+
+            if (!deleted)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Lokasjonen kunne ikke slettes. Kontroller at den ikke har rom.");
+
+                return View("DeleteLocation", location);
+            }
+
+            _logger.LogInformation(
+                "Lokasjon {LocationId} ble slettet", id);
+
+            TempData["SuccessMessage"] =
+                "Lokasjonen ble slettet.";
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Feil ved sletting av lokasjon {LocationId}", id);
+
+            ModelState.AddModelError(
+                string.Empty,
+                "En feil oppstod ved sletting.");
+
+            return View("DeleteLocation", location);
+        }
+    }
+
 }
