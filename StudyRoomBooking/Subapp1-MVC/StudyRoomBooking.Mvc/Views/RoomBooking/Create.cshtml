@@ -43,7 +43,7 @@
             
             <textarea asp-for="Description" class="form-control"></textarea>
             <small class="text-muted">Maks 200 tegn</small>
-            <span asp-validation-for="Description" class="text-danger"></span>
+            <span asp-validation-for="Description" class="text-danger fw-bold"></span>
                 </div>
 
         @*Aktiveres når lagring av booking er klar*@
@@ -56,4 +56,9 @@
         Tilbake til lokasjoner
         </a>
         </form>
+        @section Scripts
+{
+    @* Aktiverer klientvalidering for feltene i bookingskjemaet. *@
+    <partial name="_ValidationScriptsPartial" />
+}
 

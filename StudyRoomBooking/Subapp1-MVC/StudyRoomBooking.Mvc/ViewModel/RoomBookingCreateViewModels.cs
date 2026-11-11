@@ -24,6 +24,8 @@ public class RoomBookingCreateViewModel
 
     [Required(ErrorMessage ="Skriv inn en beskrivelse")]
     [StringLength(200, ErrorMessage = "Kommentar kan ikke være lengre enn 200 tegn.")]
+
+    
     public string Description { get; set; } = string.Empty;
     
 }

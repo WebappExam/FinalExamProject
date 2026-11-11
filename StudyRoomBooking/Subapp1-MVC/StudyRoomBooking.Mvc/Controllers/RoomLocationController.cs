@@ -71,6 +71,7 @@ public class RoomLocationController : Controller
             RoomName = viewModel.RoomName,
             Capacity = viewModel.Capacity,
             Building = viewModel.Building,
+            RoomType = viewModel.RoomType,
             LocationId = viewModel.LocationId
         };
 
@@ -113,7 +114,8 @@ public class RoomLocationController : Controller
             LocationId = room.LocationId,
             RoomName = room.RoomName,
             Capacity = room.Capacity,
-            Building = room.Building
+            Building = room.Building,
+            RoomType = room.RoomType
         };
         return View(viewModel);
     }
@@ -140,6 +142,7 @@ public class RoomLocationController : Controller
             room.RoomName = viewModel.RoomName;
             room.Capacity = viewModel.Capacity;
             room.Building = viewModel.Building;
+            room.RoomType =viewModel.RoomType;
 
             await _roomRepository.Update(room);
             _logger.LogInformation(

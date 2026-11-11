@@ -17,11 +17,11 @@ public class Room
     [Display(Name = "Room name")]
     public string RoomName { get; set; } = string.Empty;
 
-    // Capacity must be between 1 and 100 people
+    // Capacity must be between 1 and 1000 people
     [Range(
         1,
         100,
-        ErrorMessage = "Capacity must be between 1 and 100."
+        ErrorMessage = "Capacity must be between 1 and 1000."
     )]
 
     [Required]
@@ -43,6 +43,10 @@ public class Room
 
     public Location Location { get; set; } = null!;
 
+    // Krever en romtype med mellom 2 og 50 tegn.
+    [Required(ErrorMessage = "Skriv romtype")]
+    [StringLength(50, MinimumLength = 2,
+    ErrorMessage = "Romtype må ha mellom 2 og 50 tegn")]
     public string RoomType { get; set; } = string.Empty;
 
     public string Available { get; set;} = string.Empty;

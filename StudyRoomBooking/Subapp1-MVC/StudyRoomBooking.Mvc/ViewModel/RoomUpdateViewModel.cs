@@ -17,7 +17,7 @@ public int RoomId { get; set; }
     public string RoomName { get; set; } = string.Empty;
 
     [Required (ErrorMessage = "Skriv antall personer rommet skal ha plass til")]
-    [Range(1, 100, ErrorMessage = "Antall personer må være mellom 1 og 100")] // Eksempel på validering av kapasitet, må være mellom 1 og 100
+    [Range(1, 1000, ErrorMessage = "Antall personer må være mellom 1 og 1000")] // Eksempel på validering av kapasitet, må være mellom 1 og 100
     public int? Capacity { get; set; }
 
     [Required (ErrorMessage = "Skriv byggnavn")]
@@ -25,6 +25,10 @@ public int RoomId { get; set; }
     ErrorMessage = "Byggnavn må ha mellom 2 og 50 tegn")]
     public string Building { get; set; } = string.Empty;
 
+    // Krever en romtype med mellom 2 og 50 tegn.
+    [Required(ErrorMessage = "Skriv romtype")]
+    [StringLength(50, MinimumLength = 2,
+    ErrorMessage = "Romtype må ha mellom 2 og 50 tegn")]
     public string RoomType { get; set; } = string.Empty;
 
     public string Available { get; set; } = string.Empty;
