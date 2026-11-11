@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace StudyRoomBooking.Web.Models;
+namespace StudyRoomBooking.Mvc.Models;
 
 /*
 This class represents a student/user in the system

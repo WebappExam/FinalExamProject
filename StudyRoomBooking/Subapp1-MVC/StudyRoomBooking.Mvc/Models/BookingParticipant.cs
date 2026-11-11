@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-namespace StudyRoomBooking.Web.Models;
+namespace StudyRoomBooking.Mvc.Models;
 
 
 /*
