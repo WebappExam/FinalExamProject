@@ -63,7 +63,6 @@ public async Task<IActionResult> Create(int roomId)
     return View(viewModel);
 }
 
-
  //POST metode
     [HttpPost]
     [ValidateAntiForgeryToken]

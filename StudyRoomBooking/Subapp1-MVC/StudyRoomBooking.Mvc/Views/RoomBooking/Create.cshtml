@@ -32,16 +32,17 @@
                 </div>
 
                   <div class ="mb-3">
-            <label asp-for= "Course" class ="form-label">Kursnavn</label>
+            <label asp-for= "Course" class ="form-label">Kursnavn (valgfritt)</label>
             <input asp-for="Course"
                 class= "form-control" />
                 <span asp-validation-for="Course" class="text-danger"></span>
                 </div>
 
                        <div class ="mb-3">
-            <label asp-for="Description" class="form-label">Beskrivelse (valgfritt)</label>
+            <label asp-for="Description" class="form-label">Beskrivelse (obligatorisk)</label>
             
             <textarea asp-for="Description" class="form-control"></textarea>
+            <small class="text-muted">Maks 200 tegn</small>
             <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
 

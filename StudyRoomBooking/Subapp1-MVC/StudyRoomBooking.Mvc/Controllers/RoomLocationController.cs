@@ -12,16 +12,20 @@ public class RoomLocationController : Controller
     private readonly ILocationRepository _locationRepository;
     private readonly IRoomRepository _roomRepository;
 
+    private readonly IRoomBookingRepository _roomBookingRepository;
+
     private readonly ILogger<RoomLocationController> _logger;
 
 //Tar inn repository som skal brukes til å hente lokasjoner og rom fra databasen
     public RoomLocationController(
         ILocationRepository locationRepository,
         IRoomRepository roomRepository,
+        IRoomBookingRepository roomBookingRepository,
         ILogger<RoomLocationController> logger)
     {
         _locationRepository = locationRepository;
         _roomRepository = roomRepository;
+        _roomBookingRepository = roomBookingRepository;
         _logger = logger;
     }
 
@@ -246,7 +250,14 @@ public class RoomLocationController : Controller
     }
 
     // Viser rommene på lokasjonen brukeren valgte + søketekst som skal vises i søkefeltet
-    public async Task<IActionResult> Rooms(int locationId, string ? searchQuery,string ? building, int? minCapacity )
+    public async Task<IActionResult> Rooms(
+        int locationId, 
+        string ? searchQuery,
+        string ? building, 
+        int? minCapacity,
+        DateTime? startTime,
+        DateTime? endTime, 
+        bool onlyAvailable = false)
     {
         var location = await _locationRepository
             .GetWithRoomsAsync(locationId);
@@ -256,6 +267,26 @@ public class RoomLocationController : Controller
             return NotFound("Lokasjonen finnes ikke.");
         }
 
+
+        if (onlyAvailable)
+        {
+             if (!startTime.HasValue || !endTime.HasValue)
+             {
+
+            ModelState.AddModelError( 
+                string.Empty,
+                "Velg både starttidspunkt og slutttidspunkt for å søke etter ledige rom");
+                }
+             
+                else if (startTime.Value >= endTime.Value)
+                {
+                    
+                ModelState.AddModelError( 
+                string.Empty,
+                "Starttidspunkt må være før slutttidspunkt. Vennligst prøv igjen og skriv inn gyldig tidspunkt.");
+                }
+            }
+    
     //Filtrerer rommene basert på lokasjon,etter navn uavhening av store og små bokstaver, og fjerner eventuelle mellomrom i søketeksten
     var rooms = location.Rooms.AsEnumerable();
     if (!string.IsNullOrWhiteSpace(searchQuery))
@@ -265,7 +296,6 @@ public class RoomLocationController : Controller
     }
 
     //Filtrerer videre på bygg hvis bruker har skrevet inn i søkefeltet
-    
     if (!string.IsNullOrWhiteSpace(building))
 
     {
@@ -274,10 +304,37 @@ public class RoomLocationController : Controller
     }
 
     //Filtrerer videre på min kapasitet hvis bruker har skrevet inn i søkefeltet
+
     if (minCapacity.HasValue)
-    {
-        rooms = rooms.Where(room => room.Capacity >= minCapacity.Value);
-    }
+        {
+            rooms =rooms.Where(room =>
+            room.Capacity >= minCapacity.Value);
+        }
+
+    var occupiedRoomIds = new HashSet<int>();
+
+    if (startTime.HasValue &&
+    endTime.HasValue &&
+    startTime.Value < endTime.Value)
+{
+    var occupiedIds = await _roomBookingRepository
+        .GetOccupiedRoomIdAsync(
+            locationId,
+            startTime.Value,
+            endTime.Value);
+
+    occupiedRoomIds = occupiedIds.ToHashSet();
+
+    if (onlyAvailable &&
+    startTime.HasValue &&
+    endTime.HasValue &&
+    startTime.Value <endTime.Value)
+            {
+                rooms= rooms.Where(room =>
+                !occupiedRoomIds.Contains(room.RoomId));
+            }
+}
+
     //Sender søketekst og filtrert romliste til viewmodel som skal vises i viewet
         var viewModel = new LocationViewModel
         {
@@ -286,6 +343,10 @@ public class RoomLocationController : Controller
             SearchQuery = searchQuery,
             Building = building,
             MinCapacity = minCapacity,
+            StartTime = startTime,
+            EndTime = endTime,
+            OnlyAvailable = onlyAvailable,
+            OccupiedRoomIds = occupiedRoomIds,
             Rooms = rooms
                 .OrderBy(room => room.RoomName)
                 .ToList()
@@ -487,6 +548,6 @@ public class RoomLocationController : Controller
 
             return View("DeleteLocation", location);
         }
-    }
+     }
 
 }
