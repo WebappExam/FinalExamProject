@@ -9,20 +9,24 @@ public class RoomBookingController : Controller
 {
     private readonly IRoomRepository _roomRepository;
     private readonly IRoomBookingRepository _roomBookingRepository;
+    // Brukes til å logge bookinghendelser og feil på serveren.
+    private readonly ILogger<RoomBookingController> _logger;
 
     //Gir controller tilgang til rom og booking
     public RoomBookingController(
-        IRoomRepository roomRepository, 
-        IRoomBookingRepository roomBookingRepository)
+       IRoomRepository roomRepository,
+        IRoomBookingRepository roomBookingRepository,
+        ILogger<RoomBookingController> logger)
     {
         _roomRepository = roomRepository;
         _roomBookingRepository = roomBookingRepository;
+        _logger =logger;
     }
 
     //Åpner bookingsiden for et gitt rom
 
 [HttpGet]
-public async Task<IActionResult> Create(int roomId)
+    public async Task<IActionResult> Create(int roomId)
 {
     // Validate room ID
     if (roomId <= 0)
@@ -138,10 +142,32 @@ public async Task<IActionResult> Create(int roomId)
         };
 
         // Lagring aktiveres når brukerkobling er klar
-        await _roomBookingRepository.Create(booking);
-         return RedirectToAction ("Index","RoomLocation");
-        }
+        try
+    {
+         await _roomBookingRepository.Create(booking);
 
+        //Logger først når bookingen er lagret.
+        _logger.LogInformation(
+        "Booking {BookingId} ble opprettet for rom {RoomId}.",
+        booking.Id, booking.RoomId);
+
+    return RedirectToAction("Index", "RoomLocation");
+}
+catch (Exception ex)
+{
+    // Beholder feildetaljene i loggen og viser en forståelig melding.
+    _logger.LogError(
+        ex,
+        "Feil ved oppretting av booking for rom {RoomId}.",
+        booking.RoomId);
+
+    ModelState.AddModelError(
+        string.Empty,
+        "Bookingen kunne ikke lagres. Vennligst prøv igjen.");
+
+    return View(viewModel);
+}
+    }
         //Viser bookinger til innlogget bruker
         [HttpGet]
         public async Task<IActionResult> MyBookings()
@@ -230,8 +256,28 @@ public async Task<IActionResult> Create(int roomId)
             {
                 return Forbid();
             }
-            await _roomBookingRepository.DeleteAsync(booking);
-            return RedirectToAction(nameof(MyBookings));
+            try
+        {
+    await _roomBookingRepository.DeleteAsync(booking);
+
+    // Logger først når bookingen er slettet.
+    _logger.LogInformation(
+        "Booking {BookingId} ble kansellert for rom {RoomId}.",
+        booking.Id, booking.RoomId);
+}
+catch (Exception ex)
+{
+    // Logger feilen og sender en melding til Mine bookinger.
+    _logger.LogError(
+        ex,
+        "Feil ved kansellering av booking {BookingId}.",
+        booking.Id);
+
+    TempData["ErrorMessage"] =
+        "Bookingen kunne ikke kanselleres. Vennligst prøv igjen.";
+}
+
+return RedirectToAction(nameof(MyBookings));
     }
 
 // GET: RoomBooking/Details/5
@@ -362,12 +408,33 @@ public async Task<IActionResult> Details(int id)
         existingBooking.Description =
             viewModel.Description ?? string.Empty;
 
-        await _roomBookingRepository.UpdateAsync(existingBooking);
+   try
+{
+    await _roomBookingRepository.UpdateAsync(existingBooking);
 
-        TempData["SuccessMessage"] =
-            "Bookingen ble oppdatert.";
+    // Logger først når endringene er lagret.
+    _logger.LogInformation(
+        "Booking {BookingId} ble oppdatert for rom {RoomId}.",
+        existingBooking.Id, existingBooking.RoomId);
 
-        return RedirectToAction(nameof(Details), new { id });
+    TempData["SuccessMessage"] = "Bookingen ble oppdatert.";
+
+    return RedirectToAction(nameof(Details), new { id });
+}
+catch (Exception ex)
+{
+    // Logger feildetaljene og lar brukeren beholde skjemaet.
+    _logger.LogError(
+        ex,
+        "Feil ved oppdatering av booking {BookingId}.",
+        existingBooking.Id);
+
+    ModelState.AddModelError(
+        string.Empty,
+        "Bookingen kunne ikke oppdateres. Vennligst prøv igjen.");
+
+    return View(viewModel);
+}
     }
 
     // GET: RoomBooking/Delete/5
@@ -413,17 +480,34 @@ public async Task<IActionResult> Details(int id)
             return BadRequest();
         }
 
-        var deleted = await _roomBookingRepository.DeleteAsync(id);
+       try
+{
+    var deleted = await _roomBookingRepository.DeleteAsync(id);
 
-        if (!deleted)
-        {
-            return NotFound();
-        }
+    if (!deleted)
+    {
+        return NotFound();
+    }
 
-        TempData["SuccessMessage"] =
-            "Bookingen ble slettet.";
+    // Logger først når bookingen er slettet.
+    _logger.LogInformation(
+        "Booking {BookingId} ble slettet.",
+        id);
 
-        return RedirectToAction(nameof(Index));
+    TempData["SuccessMessage"] = "Bookingen ble slettet.";
+}
+catch (Exception ex)
+{
+    // Logger feildetaljene og viser en melding i bookingoversikten.
+    _logger.LogError(
+        ex,
+        "Feil ved sletting av booking {BookingId}.",
+        id);
 
+    TempData["ErrorMessage"] =
+        "Bookingen kunne ikke slettes. Vennligst prøv igjen.";
+}
+
+return RedirectToAction(nameof(Index));
          } 
     }

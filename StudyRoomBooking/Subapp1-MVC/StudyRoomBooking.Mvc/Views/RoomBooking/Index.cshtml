@@ -17,6 +17,13 @@
             @message
         </div>
     }
+    @* Viser feilmelding dersom sletting av en booking mislykkes. *@
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger fw-bold" role="alert">
+            @errorMessage
+        </div>
+    }
 
     @if (!Model.Any())
     {

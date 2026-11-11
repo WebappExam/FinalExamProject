@@ -21,6 +21,12 @@ builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>(); //lagt til room repository
 var app = builder.Build();
 
+// Viser en generell feilside utenfor utviklingsmiljøet.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+}
+
 // Legg inn eksempeldata med: dotnet run -- --seed
 
 /*

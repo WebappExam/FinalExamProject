@@ -20,7 +20,7 @@ public class Room
     // Capacity must be between 1 and 1000 people
     [Range(
         1,
-        100,
+        1000,
         ErrorMessage = "Capacity must be between 1 and 1000."
     )]
 
