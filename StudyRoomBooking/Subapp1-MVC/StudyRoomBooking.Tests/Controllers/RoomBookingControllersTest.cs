@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
@@ -9,7 +6,7 @@ using StudyRoomBooking.Mvc.Controllers;
 using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.Models;
 using StudyRoomBooking.Mvc.viewModel;
-using Xunit;
+
 
 namespace StudyRoomBooking.Tests.Controllers;
 
