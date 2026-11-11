@@ -16,11 +16,6 @@ for details on configuring this project to bundle and minify static web assets. 
   font-weight: 700;
 }
 
-.site-header ::deep .site-header-brand:hover,
-.site-header ::deep .site-header-brand:focus {
-  color: #000;
-}
-
 .site-header ::deep .site-header-brand img {
   display: block;
   width: auto;
@@ -39,7 +34,7 @@ for details on configuring this project to bundle and minify static web assets. 
 
 .site-header ::deep .nav-link:hover,
 .site-header ::deep .nav-link:focus {
-  text-decoration: underline;
+  color: white;
 }
 
 .site-header ::deep .navbar-toggler {
