@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using StudyRoomBooking.Mvc.DAL;
+using StudyRoomBooking.Mvc.DTOs;
 using StudyRoomBooking.Mvc.Models;
 
 namespace StudyRoomBooking.Mvc.Controllers;
@@ -12,14 +13,14 @@ public class RoomsController(
     ILogger<RoomsController> logger) : ControllerBase
 {
     [HttpGet("{roomId:int}")]
-    public async Task<ActionResult<Room>> GetRoom(int roomId)
+    public async Task<ActionResult<RoomDto>> GetRoom(int roomId)
     {
         var room = await roomRepository.GetRoomById(roomId);
-        return room is null ? NotFound() : Ok(room);
+        return room is null ? NotFound() : Ok(ToDto(room));
     }
 
     [HttpPost]
-    public async Task<ActionResult<Room>> CreateRoom(Room request)
+    public async Task<ActionResult<RoomDto>> CreateRoom(RoomWriteDto request)
     {
         if (await locationRepository.GetByIdAsync(request.LocationId) is null)
         {
@@ -39,17 +40,15 @@ public class RoomsController(
         await roomRepository.Create(room);
         logger.LogInformation("Created room {RoomId}", room.RoomId);
 
-        return CreatedAtAction(nameof(GetRoom), new { roomId = room.RoomId }, room);
+        return CreatedAtAction(
+            nameof(GetRoom),
+            new { roomId = room.RoomId },
+            ToDto(room));
     }
 
     [HttpPut("{roomId:int}")]
-    public async Task<IActionResult> UpdateRoom(int roomId, Room request)
+    public async Task<IActionResult> UpdateRoom(int roomId, RoomWriteDto request)
     {
-        if (roomId != request.RoomId)
-        {
-            return BadRequest(new { message = "The route room ID does not match the request room ID." });
-        }
-
         var room = await roomRepository.GetRoomById(roomId);
         if (room is null)
         {
@@ -91,4 +90,15 @@ public class RoomsController(
         logger.LogInformation("Deleted room {RoomId}", roomId);
         return NoContent();
     }
+
+    internal static RoomDto ToDto(Room room) => new()
+    {
+        RoomId = room.RoomId,
+        RoomName = room.RoomName,
+        Capacity = room.Capacity,
+        Building = room.Building,
+        LocationId = room.LocationId,
+        RoomType = room.RoomType,
+        Available = room.Available
+    };
 }

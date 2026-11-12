@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using StudyRoomBooking.Mvc.DAL;
+using StudyRoomBooking.Mvc.DTOs;
 using StudyRoomBooking.Mvc.Models;
 
 namespace StudyRoomBooking.Mvc.Controllers;
@@ -11,27 +12,38 @@ public class LocationsController(
     ILogger<LocationsController> logger) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<Location>>> GetLocations()
+    public async Task<ActionResult<List<LocationDto>>> GetLocations()
     {
-        return Ok(await locationRepository.GetAllAsync());
+        var locations = await locationRepository.GetAllAsync();
+        return Ok(locations.Select(ToDto).ToList());
     }
 
     [HttpGet("{locationId:int}")]
-    public async Task<ActionResult<Location>> GetLocation(int locationId)
+    public async Task<ActionResult<LocationDto>> GetLocation(int locationId)
     {
         var location = await locationRepository.GetByIdAsync(locationId);
-        return location is null ? NotFound() : Ok(location);
+        return location is null ? NotFound() : Ok(ToDto(location));
     }
 
     [HttpGet("{locationId:int}/rooms")]
-    public async Task<ActionResult<Location>> GetLocationRooms(int locationId)
+    public async Task<ActionResult<LocationWithRoomsDto>> GetLocationRooms(int locationId)
     {
         var location = await locationRepository.GetWithRoomsAsync(locationId);
-        return location is null ? NotFound() : Ok(location);
+        if (location is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new LocationWithRoomsDto
+        {
+            LocationId = location.LocationId,
+            Name = location.Name,
+            Rooms = location.Rooms.Select(RoomsController.ToDto).ToList()
+        });
     }
 
     [HttpPost]
-    public async Task<ActionResult<Location>> CreateLocation(Location request)
+    public async Task<ActionResult<LocationDto>> CreateLocation(LocationWriteDto request)
     {
         var name = request.Name.Trim();
         if (await locationRepository.NameExistsAsync(name))
@@ -46,11 +58,11 @@ public class LocationsController(
         return CreatedAtAction(
             nameof(GetLocation),
             new { locationId = location.LocationId },
-            location);
+            ToDto(location));
     }
 
     [HttpPut("{locationId:int}")]
-    public async Task<IActionResult> UpdateLocation(int locationId, Location request)
+    public async Task<IActionResult> UpdateLocation(int locationId, LocationWriteDto request)
     {
         var location = await locationRepository.GetByIdAsync(locationId);
         if (location is null)
@@ -87,4 +99,10 @@ public class LocationsController(
         logger.LogInformation("Deleted location {LocationId}", locationId);
         return NoContent();
     }
+
+    private static LocationDto ToDto(Location location) => new()
+    {
+        LocationId = location.LocationId,
+        Name = location.Name
+    };
 }
