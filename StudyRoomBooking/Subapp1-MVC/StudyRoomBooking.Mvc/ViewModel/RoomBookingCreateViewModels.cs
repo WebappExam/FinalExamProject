@@ -16,12 +16,17 @@ public class RoomBookingCreateViewModel
     [Required(ErrorMessage = "Sluttidspunkt er påkrevd.")]
      public DateTime? EndTime { get; set; }
 
-     //Skal vi beholde kursnavn og beskrivelse i booking? 
-
-    [Required(ErrorMessage = "Skriv inn kursnavn")]
+     //Valgfritt kursnavn - maks 30 tegn 
     [StringLength(30, ErrorMessage = "Kursnavn kan ikke være lengre enn 30 tegn.")]
+    public string? Course {get; set;}
 
-    public string Course { get; set; } = string.Empty;
+    //Beskrivelse blir obligatorisk felt, maks 200 tegn
+
+    [Required(ErrorMessage ="Skriv inn en beskrivelse")]
     [StringLength(200, ErrorMessage = "Kommentar kan ikke være lengre enn 200 tegn.")]
-    public string? Description { get; set; } 
-    }
+
+    
+    public string Description { get; set; } = string.Empty;
+    
+}
+

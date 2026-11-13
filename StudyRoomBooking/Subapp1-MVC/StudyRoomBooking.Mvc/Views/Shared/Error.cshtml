@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "En feil oppstod";
+}
+
+<h1>En feil oppstod</h1>
+
+@* Viser en forståelig melding uten tekniske feildetaljer. *@
+<div class="alert alert-danger" role="alert">
+    Vi kunne ikke fullføre forespørselen. Vennligst prøv igjen senere.
+</div>
+
+<a asp-controller="RoomLocation"
+   asp-action="Index"
+   class="btn btn-primary">
+    Tilbake til lokasjoner
+</a>

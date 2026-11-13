@@ -100,4 +100,22 @@ public class RoomBookingRepository : IRoomBookingRepository
             (!excludeBookingId.HasValue ||
              b.Id != excludeBookingId.Value));
     }
+
+    public async Task<List<int>> GetOccupiedRoomIdAsync(
+        int locationId, 
+        DateTime startTime, 
+        DateTime endTime)
+    {
+
+        return await _db.RoomBooking
+
+        .Where(booking =>
+        booking.Room.LocationId == locationId &&
+        booking.StartTime <endTime &&
+        booking.EndTime > startTime)
+        .Select(booking => booking.RoomId)
+        .Distinct()
+        .ToListAsync();
+    }
+
 }

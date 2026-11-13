@@ -35,4 +35,11 @@ public interface IRoomBookingRepository
         DateTime endTime,
         int? excludeBookingId = null
     );
+
+    //Henter Id til optatte rom med valgt lokashon og tidsrom
+    Task<List<int>> GetOccupiedRoomIdAsync(
+        int locationId,
+        DateTime startTime,
+        DateTime endTime);
+    
 }

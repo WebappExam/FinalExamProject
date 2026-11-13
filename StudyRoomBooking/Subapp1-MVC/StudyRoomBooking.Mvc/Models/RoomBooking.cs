@@ -17,10 +17,12 @@ public class RoomBooking
     [Required]
     [Display(Name = "End Time")]
     public DateTime EndTime { get; set; }
-    [Required, StringLength(50)]
-    public string Course { get; set; } = string.Empty;    // e.g. The course name for the booking.
+    
+    [StringLength(30)]
+    public string? Course { get; set; }// e.g. The course name for the booking.
 
-    [StringLength(500)]
+    [Required]
+    [StringLength(200)]
     public string Description { get; set; } = string.Empty;
     public int RoomId { get; set; }
 

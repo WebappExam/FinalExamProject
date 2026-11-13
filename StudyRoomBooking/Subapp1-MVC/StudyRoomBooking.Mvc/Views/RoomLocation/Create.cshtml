@@ -5,7 +5,7 @@
 
 <h1>Opprett nytt rom</h1>
 <form asp-controller="RoomLocation" asp-action="Create" method="post">
-    <div asp-validation-summary="All" class="text-danger"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger fw-bold"></div>
 
     @*Beholder kobling til valgt lokasjon*@
     <input asp-for="LocationId" type="hidden" />
@@ -13,20 +13,27 @@
 <div class="mb-3">
         <label asp-for="RoomName" class="form-label">Romnavn</label>
         <input asp-for="RoomName" class="form-control" />
-        <span asp-validation-for="RoomName" class="text-danger"></span>
+        <span asp-validation-for="RoomName" class="text-danger fw-bold"></span>
     </div>
 
     <div class="mb-3">
         <label asp-for="Capacity" class="form-label">Kapasitet</label>
         <input asp-for="Capacity" type="number" 
-        min="1" max="100" class="form-control" />
-        <span asp-validation-for="Capacity" class="text-danger"></span>
+        class="form-control" />
+        <span asp-validation-for="Capacity" class="text-danger fw-bold"></span>
     </div>
 
     <div class="mb-3">
         <label asp-for="Building" class="form-label">Bygg</label>
         <input asp-for="Building" class="form-control" />
-        <span asp-validation-for="Building" class="text-danger"></span>
+        <span asp-validation-for="Building" class="text-danger fw-bold"></span>
+    </div>
+
+    @* Kobler romtypefeltet til ViewModelen og viser valideringsfeil. *@
+    <div class="mb-3">
+        <label asp-for="RoomType" class="form-label">Romtype</label>
+        <input asp-for="RoomType" class="form-control" />
+        <span asp-validation-for="RoomType" class="text-danger fw-bold"></span>
     </div>
 
     <button type="submit" class="btn btn-primary">Opprett rom</button>
@@ -37,3 +44,9 @@
     Avbryt
     </a>
 </form>
+
+@section Scripts
+{
+    @* Aktiverer klientvalidering for feltene i romskjemaet. *@
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -283,6 +283,7 @@ namespace StudyRoomBooking.Mvc.Data.Migrations
 
                     b.Property<string>("RoomType")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.HasKey("RoomId");
@@ -299,13 +300,12 @@ namespace StudyRoomBooking.Mvc.Data.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Course")
-                        .IsRequired()
-                        .HasMaxLength(50)
+                        .HasMaxLength(30)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(500)
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("EndTime")
