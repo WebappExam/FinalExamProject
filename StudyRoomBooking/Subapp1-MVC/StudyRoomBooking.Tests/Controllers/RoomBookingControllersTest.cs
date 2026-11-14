@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Castle.Core.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
@@ -6,6 +7,7 @@ using StudyRoomBooking.Mvc.Controllers;
 using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.Models;
 using StudyRoomBooking.Mvc.viewModel;
+using Microsoft.Extensions.Logging.Abstractions;
 
 
 namespace StudyRoomBooking.Tests.Controllers;
@@ -23,7 +25,8 @@ public class RoomBookingControllerTests
 
         _controller = new RoomBookingController(
             _roomRepository,
-            _bookingRepository);
+            _bookingRepository,
+            NullLogger<RoomBookingController>.Instance);
 
         // Start each test with an anonymous user
         _controller.ControllerContext = new ControllerContext
