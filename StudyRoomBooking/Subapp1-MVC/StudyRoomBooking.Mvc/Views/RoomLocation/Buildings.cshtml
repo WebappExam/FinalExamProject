@@ -1,0 +1,23 @@
+@model StudyRoomBooking.Mvc.viewModel.LocationBuildingsViewModel
+
+<h1>Velg bygg på @Model.LocationName</h1>
+<a asp-action="Index">Tilbake til lokasjoner</a>
+
+<div class="row g-4 mt-2">
+    @foreach (var building in Model.Buildings)
+    {
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h4">@building</h2>
+                    <a asp-action="Rooms"
+                       asp-route-locationId="@Model.LocationId"
+                       asp-route-building="@building"
+                       class="btn btn-primary">
+                        Se rom
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
