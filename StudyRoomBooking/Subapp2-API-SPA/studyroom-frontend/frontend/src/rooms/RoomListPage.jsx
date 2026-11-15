@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import RoomTable from './RoomTable';
+import { Link } from 'react-router-dom';
 
-const RoomListPage = () => {
+//mottar den felles romlisten fra APP
+
+  const RoomListPage = ({rooms, onRoomDeleted}) => {
   // Lagrer søketeksten og oppdaterer siden når teksten endres.
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -44,22 +47,6 @@ const RoomListPage = () => {
     timeError = 'Sluttidspunkt må være etter starttidspunkt.';
   }
 
-  //Eksempeldata – erstattes med data fra API senere.
-  const rooms = [
-    {
-      RoomId: 1,
-      RoomName: 'Grupperom 1',
-      Capacity: 6,
-      Building: 'P35'
-    },
-    {
-      RoomId: 2,
-      RoomName: 'Grupperom 2',
-      Capacity: 20,
-      Building: 'P38'
-    }
-  ];
-
   // Filtrerer rommene med verdiene fra siste søk.
 const filteredRooms = rooms.filter(room =>
   room.RoomName.toLowerCase().includes(
@@ -86,7 +73,6 @@ const handleSearch = (event) => {
   });
 };
 
-
   // Tilbakestiller søkefeltene til startverdiene.
   const resetFilters = () => {
     setSearchQuery('');
@@ -105,10 +91,33 @@ const handleSearch = (event) => {
 });
   };
 
+  // Ber om bekreftelse før rommet slettes.
+const handleRoomDeleted = (roomId) => {
+  const room = rooms.find(item => item.RoomId === roomId);
+
+  if (!room) {
+    return;
+  }
+
+  const confirmDelete = window.confirm(
+    `Er du sikker på at du vil slette rommet «${room.RoomName}»?`
+  );
+
+  if (confirmDelete) {
+    onRoomDeleted(roomId);
+  }
+};
+
+
   return (
 
     <div className="text-start">
       <h1>Rom</h1>
+        {/* Åpner opprettingssiden uten å laste hele appen på nytt. */}
+<Link to="/roomcreate" className="btn btn-primary mb-3">
+  Opprett nytt rom
+</Link>
+
 
     {/* Bruker våre egne valideringsmeldinger ved innsending. */}
     <Form onSubmit={handleSearch} noValidate>
@@ -220,7 +229,10 @@ const handleSearch = (event) => {
           {filteredRooms.length === 0 && (
             <p>Søket ditt gir ingen treff</p>
           )}
-          <RoomTable rooms={filteredRooms} />
+        <RoomTable
+          rooms={filteredRooms}
+            onRoomDeleted={handleRoomDeleted}
+              />
         </>
       )}
     </div>
