@@ -118,6 +118,10 @@ const handleRoomDeleted = (roomId) => {
   Opprett nytt rom
 </Link>
 
+<Link to="/locations" className="btn btn-secondary mb-3 ms-2">
+  Administrer lokasjoner
+</Link>
+
 
     {/* Bruker våre egne valideringsmeldinger ved innsending. */}
     <Form onSubmit={handleSearch} noValidate>
