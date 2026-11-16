@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 //mottar den felles romlisten fra APP
 
-const RoomListPage = ({ rooms, onRoomDeleted }) => {
+const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
   // Lagrer søketeksten og oppdaterer siden når teksten endres.
   const [searchQuery, setSearchQuery] = useState('');
   // Lagrer feilmeldingen dersom rommet ikke kan slettes.
@@ -32,7 +32,10 @@ const RoomListPage = ({ rooms, onRoomDeleted }) => {
   const [appliedFilters, setAppliedFilters] = useState({
     searchQuery: '',
     building: '',
-    minCapacity: '1'
+    minCapacity: '1',
+    startTime: '',
+    endTime: '',
+    onlyAvailable: false
   });
 
   //Kontrollerer tidsperioden før søkeresultatet vises.
@@ -49,16 +52,31 @@ const RoomListPage = ({ rooms, onRoomDeleted }) => {
     timeError = 'Sluttidspunkt må være etter starttidspunkt.';
   }
 
-  // Filtrerer rommene med verdiene fra siste søk.
-  const filteredRooms = rooms.filter(room =>
-    room.RoomName.toLowerCase().includes(
-      appliedFilters.searchQuery.trim().toLowerCase()
-    ) &&
-    room.Building.toLowerCase().includes(
-      appliedFilters.building.trim().toLowerCase()
-    ) &&
-    room.Capacity >= Number(appliedFilters.minCapacity)
-  );
+  // Filtrerer på romnavn, bygg, kapasitet og eventuelt ledighet.
+  const filteredRooms = rooms.filter(room => {
+    const matchesFilters =
+      room.RoomName.toLowerCase().includes(
+        appliedFilters.searchQuery.trim().toLowerCase()
+      ) &&
+      room.Building.toLowerCase().includes(
+        appliedFilters.building.trim().toLowerCase()
+      ) &&
+      room.Capacity >= Number(appliedFilters.minCapacity);
+
+    // Vanlig søk viser også rom som har bookinger.
+    if (!appliedFilters.onlyAvailable) {
+      return matchesFilters;
+    }
+
+    // Kontrollerer om rommet er booket i den valgte perioden.
+    const hasOverlap = bookings.some(booking =>
+      Number(booking.RoomId) === Number(room.RoomId) &&
+      new Date(appliedFilters.startTime) < new Date(booking.EndTime) &&
+      new Date(appliedFilters.endTime) > new Date(booking.StartTime)
+    );
+
+    return matchesFilters && !hasOverlap;
+  });
 
   // Kontrollerer skjemaet og bruker filtrene når brukeren trykker Søk.
   const handleSearch = (event) => {
@@ -71,7 +89,10 @@ const RoomListPage = ({ rooms, onRoomDeleted }) => {
     setAppliedFilters({
       searchQuery,
       building,
-      minCapacity
+      minCapacity,
+      startTime,
+      endTime,
+      onlyAvailable
     });
   };
 
@@ -211,7 +232,7 @@ const RoomListPage = ({ rooms, onRoomDeleted }) => {
         )}
 
         <p className="text-muted">
-          Tidsfilter og ledighet blir tilgjengelig når API-et er koblet til.
+          Velg en tidsperiode og kryss av «Vis kun ledige rom» for å søke etter ledige rom.
         </p>
 
         <Button

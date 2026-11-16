@@ -214,11 +214,11 @@ function App() {
               element={
                 <RoomListPage
                   rooms={rooms}
+                  bookings={bookings}
                   onRoomDeleted={deleteRoom}
                 />
               }
             />
-
             <Route
               path="/locationupdate/:locationId"
               element={

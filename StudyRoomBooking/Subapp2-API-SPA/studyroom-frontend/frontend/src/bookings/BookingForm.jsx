@@ -75,7 +75,6 @@ const BookingForm = ({
             setValidationError('Beskrivelsen kan ikke være lengre enn 200 tegn.');
             return;
         }
-
         const booking = {
             Id: bookingId,
             RoomId: Number(roomId),
