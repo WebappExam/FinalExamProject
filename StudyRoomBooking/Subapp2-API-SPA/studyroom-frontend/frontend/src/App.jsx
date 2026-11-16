@@ -60,8 +60,8 @@ function App() {
   // Kontrollerer om en booking overlapper med en eksisterende booking.
   const hasOverlappingBooking = (newBooking) => {
     return bookings.some(booking =>
-      booking.RoomId === newBooking.RoomId &&
-      booking.Id !== newBooking.Id &&
+      Number(booking.RoomId) === Number(newBooking.RoomId) &&
+      Number(booking.Id) !== Number(newBooking.Id) &&
       new Date(newBooking.StartTime) < new Date(booking.EndTime) &&
       new Date(newBooking.EndTime) > new Date(booking.StartTime)
     );
@@ -88,6 +88,16 @@ function App() {
 
   // Fjerner rommet med valgt ID fra den midlertidige romlisten.
   const deleteRoom = (roomId) => {
+
+    // Hindrer sletting av rom som har bookinger.
+    const hasBookings = bookings.some(
+      booking => Number(booking.RoomId) === Number(roomId)
+    );
+
+    if (hasBookings) {
+      throw new Error('Rommet kan ikke slettes fordi det har bookinger.');
+    }
+
     setRooms(currentRooms =>
       currentRooms.filter(room => room.RoomId !== roomId)
     );
@@ -140,9 +150,18 @@ function App() {
 
     setBookings(currentBookings =>
       currentBookings.map(booking =>
-        booking.Id === updatedBooking.Id
+        Number(booking.Id) === Number(updatedBooking.Id)
           ? updatedBooking
           : booking
+      )
+    );
+
+  };
+  // Fjerner valgt booking fra den midlertidige bookinglisten.
+  const deleteBooking = (bookingId) => {
+    setBookings(currentBookings =>
+      currentBookings.filter(
+        booking => Number(booking.Id) !== Number(bookingId)
       )
     );
   };
@@ -186,8 +205,8 @@ function App() {
 
     <>
       <Container>
-        <NavMenu /> {/*Viser navigasjonsmeny*/}
         <Router> {/*Router styrer navigasjon mellom sider i appen*/}
+          <NavMenu /> {/*Viser navigasjonsmeny*/}
           <Routes>
             <Route path="/" element={<HomePage />} /> {/*Viser HomePage*/}
             {/*Viser Rooms*/}<Route
@@ -251,7 +270,8 @@ function App() {
             <Route
               path="/bookings"
               element={
-                <BookingListPage bookings={bookings} />
+                <BookingListPage
+                 bookings={bookings} onBookingDeleted={deleteBooking}/>
               }
             />
 

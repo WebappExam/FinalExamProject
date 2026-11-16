@@ -2,7 +2,7 @@ import { Table, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 // Viser alle bookinger i en tabell.
-const BookingTable = ({ bookings }) => {
+const BookingTable = ({ bookings, onBookingDeleted }) => {
   const navigate = useNavigate();
 
   return (
@@ -38,8 +38,18 @@ const BookingTable = ({ bookings }) => {
               >
                 Rediger
               </Button>
-            </td>
+              {/* Sender valgt booking videre til sletting. */}
+              <Button
+                type="button"
+                variant="danger"
+                size="sm"
+                className="ms-2"
+                onClick={() => onBookingDeleted(booking.Id)}
+              >
+                Slett
+              </Button>
 
+            </td>
           </tr>
         ))}
       </tbody>

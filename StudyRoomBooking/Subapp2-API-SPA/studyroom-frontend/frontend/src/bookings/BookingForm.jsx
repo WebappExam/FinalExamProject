@@ -64,14 +64,25 @@ const BookingForm = ({
             setValidationError('Du må skrive inn en beskrivelse.');
             return;
         }
+        // Kurs er valgfritt, men kan ikke overstige 30 tegn.
+        if (course.trim().length > 30) {
+            setValidationError('Kursnavn kan ikke være lengre enn 30 tegn.');
+            return;
+        }
+
+        // Beskrivelsen kan ikke overstige 200 tegn.
+        if (description.trim().length > 200) {
+            setValidationError('Beskrivelsen kan ikke være lengre enn 200 tegn.');
+            return;
+        }
 
         const booking = {
             Id: bookingId,
             RoomId: Number(roomId),
             StartTime: startTime,
             EndTime: endTime,
-            Course: course,
-            Description: description
+            Course: course.trim(),
+            Description: description.trim()
         };
 
         try {
