@@ -267,16 +267,17 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
         </p>
       )}
 
-      {/* Viser søkeresultatet bare når kapasiteten er gyldig. */}
+                 {/* Viser søkeresultatet bare når kapasiteten er gyldig. */}
       {isCapacityValid && !timeError && (
         <>
-          {filteredRooms.length === 0 && (
+          {filteredRooms.length === 0 ? (
             <p>Søket ditt gir ingen treff</p>
+          ) : (
+            <RoomTable
+              rooms={filteredRooms}
+              onRoomDeleted={handleRoomDeleted}
+            />
           )}
-          <RoomTable
-            rooms={filteredRooms}
-            onRoomDeleted={handleRoomDeleted}
-          />
         </>
       )}
     </div>
