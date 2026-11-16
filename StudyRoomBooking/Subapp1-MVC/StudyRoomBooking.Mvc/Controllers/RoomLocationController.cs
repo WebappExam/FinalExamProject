@@ -302,8 +302,10 @@ public class RoomLocationController : Controller
     if (!string.IsNullOrWhiteSpace(building))
 
     {
-        rooms = rooms.Where(room => 
-        room.Building.ToLower().Contains(building.Trim().ToLower()));
+        rooms = rooms.Where(room => string.Equals(
+        room.Building.Trim(),
+        building.Trim(),
+        StringComparison.OrdinalIgnoreCase));
     }
 
     //Filtrerer videre på min kapasitet hvis bruker har skrevet inn i søkefeltet
@@ -552,5 +554,38 @@ public class RoomLocationController : Controller
             return View("DeleteLocation", location);
         }
      }
+
+     // This is for the new setup for Pilestredet
+     [HttpGet]
+     public async Task<IActionResult> Buildings(int locationId)
+    {
+        var location = await _locationRepository.GetWithRoomsAsync(locationId);
+
+        if (location == null)
+        {
+            return NotFound();
+        }
+
+
+        var buildings = location.Rooms
+        .Select(room => room.Building.Trim())
+        .Where(building => building.Length > 0)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .OrderBy(building => building)
+        .ToList();
+
+        if (buildings.Count <= 1)
+        {
+            return RedirectToAction(nameof(Rooms), new { locationId });
+        }
+
+        return View (new LocationBuildingsViewModel
+        {
+            LocationId = location.LocationId,
+            LocationName = location.Name,
+            Buildings = buildings
+
+        });
+    }
 
 }
