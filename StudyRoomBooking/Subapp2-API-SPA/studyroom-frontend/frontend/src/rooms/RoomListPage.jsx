@@ -267,9 +267,10 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
         </p>
       )}
 
-                 {/* Viser søkeresultatet bare når kapasiteten er gyldig. */}
-      {isCapacityValid && !timeError && (
+     {/*Condition rendering med &&: Viser resultat når kapasitet er gyldig og det ikke er tidfeil*/}
+      {isCapacityValid && !timeError && ( 
         <>
+         {/*Condition rendering med ternary (? :): Viser enten ingen treff eller romtabell*/}
           {filteredRooms.length === 0 ? (
             <p>Søket ditt gir ingen treff</p>
           ) : (
