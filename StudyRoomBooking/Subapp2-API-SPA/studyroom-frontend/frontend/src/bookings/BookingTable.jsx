@@ -2,14 +2,31 @@ import { Table, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 // Viser alle bookinger i en tabell.
-const BookingTable = ({ bookings, onBookingDeleted }) => {
+const BookingTable = ({ bookings, rooms = [], onBookingDeleted }) => {
   const navigate = useNavigate();
 
+
+  // Viser måned.dag.år og klokkeslett i 24-timersformat.
+  const formatDateTime = (value) => {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return 'Ugyldig tidspunkt';
+    }
+
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${month}.${day}.${year} kl ${hours}:${minutes}`;
+  };
+
   return (
-    <Table striped bordered hover>
+    <Table striped hover responsive className="room-results-table">
       <thead>
         <tr>
-          <th>ID</th>
           <th>Rom</th>
           <th>Starttid</th>
           <th>Sluttid</th>
@@ -24,32 +41,36 @@ const BookingTable = ({ bookings, onBookingDeleted }) => {
         {/* Lager en rad for hver booking. */}
         {bookings.map(booking => (
           <tr key={booking.Id}>
-            <td>{booking.Id}</td>
-            <td>{booking.RoomId}</td>
-            <td>{booking.StartTime}</td>
-            <td>{booking.EndTime}</td>
+            <td>
+              {rooms.find(room =>
+                Number(room.RoomId) === Number(booking.RoomId)
+              )?.RoomName ?? 'Ukjent rom'}
+            </td>
+            <td>{formatDateTime(booking.StartTime)}</td>
+            <td>{formatDateTime(booking.EndTime)}</td>
             <td>{booking.Course}</td>
             <td>{booking.Description}</td>
-            <td>
-              <Button
-                variant="warning"
-                size="sm"
-                onClick={() => navigate(`/bookingupdate/${booking.Id}`)}
-              >
-                Rediger
-              </Button>
-              {/* Sender valgt booking videre til sletting. */}
-              <Button
-                type="button"
-                variant="danger"
-                size="sm"
-                className="ms-2"
-                onClick={() => onBookingDeleted(booking.Id)}
-              >
-                Slett
-              </Button>
+              <td>
+                <div className="booking-actions">
+                  <Button
+                    type="button"
+                    variant="outline-dark"
+                    size="sm"
+                    onClick={() => navigate(`/bookingupdate/${booking.Id}`)}
+                  >
+                    Rediger
+                  </Button>
 
-            </td>
+                  <Button
+                    type="button"
+                    variant="outline-danger"
+                    size="sm"
+                    onClick={() => onBookingDeleted(booking.Id)}
+                  >
+                    Slett
+                  </Button>
+                </div>
+              </td>
           </tr>
         ))}
       </tbody>

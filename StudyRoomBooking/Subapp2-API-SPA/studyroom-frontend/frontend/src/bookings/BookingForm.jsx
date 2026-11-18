@@ -92,7 +92,7 @@ const BookingForm = ({
     };
 
     return (
-        <Form noValidate onSubmit={handleSubmit}>
+        <Form className="booking-form" noValidate onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="bookingRoom">
                 <Form.Label>Rom</Form.Label>
                 <Form.Select
@@ -157,23 +157,29 @@ const BookingForm = ({
                 </Alert>
             )}
 
-            <Button type="submit" variant="primary" disabled={submitting}>
-                {submitting
-                    ? 'Lagrer …'
-                    : isEditing
-                        ? 'Lagre endringer'
-                        : 'Opprett booking'}
-            </Button>
+            <div className="booking-form-actions">
+                <Button
+                    type="submit"
+                    variant="primary"
+                    className="room-search-button"
+                    disabled={submitting}
+                >
+                    {submitting
+                        ? 'Lagrer …'
+                        : isEditing
+                            ? 'Lagre endringer'
+                            : 'Opprett booking'}
+                </Button>
 
-            <Button
-                type="button"
-                variant="secondary"
-                className="ms-2"
-                onClick={onCancel}
-                disabled={submitting}
-            >
-                Avbryt
-            </Button>
+                <Button
+                    type="button"
+                    variant="outline-dark"
+                    onClick={onCancel}
+                    disabled={submitting}
+                >
+                    Avbryt
+                </Button>
+            </div>
         </Form>
     );
 };

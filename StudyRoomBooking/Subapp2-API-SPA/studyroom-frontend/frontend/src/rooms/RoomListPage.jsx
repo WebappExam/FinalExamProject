@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import RoomTable from './RoomTable';
-import { Link } from 'react-router-dom';
-
 //mottar den felles romlisten fra APP
 
 const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
@@ -145,10 +143,14 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
 
   return (
 
-    <div className="text-start">
-      <h1>Rom</h1>
+    <div className="text-start room-page">
+      <h1 className="room-page-title">Finn et grupperom</h1>
+      <p className="text-muted">
+        Søk etter romnavn, bygg og kapasitet, eller finn ledige rom i ønsket tidsrom.
+      </p>
 
-      {/* Åpner opprettingssiden uten å laste hele appen på nytt. */}
+{/*---------------------Skjule oprett rom og administrer lokasjoner fra vanlig brukere --------------------------*/}
+      {/* Åpner opprettingssiden uten å laste hele appen på nytt. *
       <Link to="/roomcreate" className="btn btn-primary mb-3">
         Opprett nytt rom
       </Link>
@@ -156,64 +158,68 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
       <Link to="/locations" className="btn btn-secondary mb-3 ms-2">
         Administrer lokasjoner
       </Link>
+      */}
 
       {/* Bruker våre egne valideringsmeldinger ved innsending. */}
-      <Form onSubmit={handleSearch} noValidate>
+      <Form className="room-search-panel" onSubmit={handleSearch} noValidate>
+        <div className="room-search-fields">
 
-        <Form.Group className="mb-3" controlId="roomSearch">
-          <Form.Label>Søk etter rom</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Skriv inn romnavn"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
-        </Form.Group>
+          <Form.Group className="mb-3" controlId="roomSearch">
+            <Form.Label>Søk etter rom</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Skriv inn romnavn"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+          </Form.Group>
 
-        {/* Filtrer på bygg, tomt felt viser rom fra alle bygg.*/}
-        <Form.Group className="mb-3" controlId="buildingSearch">
-          <Form.Label>Bygg</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Skriv bygg, for eksempel P35"
-            value={building}
-            onChange={e => setBuilding(e.target.value)}
-          />
-        </Form.Group>
+          {/* Filtrer på bygg, tomt felt viser rom fra alle bygg.*/}
+          <Form.Group className="mb-3" controlId="buildingSearch">
+            <Form.Label>Bygg</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Skriv bygg, for eksempel P35"
+              value={building}
+              onChange={e => setBuilding(e.target.value)}
+            />
+          </Form.Group>
 
-        {/* Filtrerer på hvor mange personer rommet minst må ha plass til. */}
-        <Form.Group className="mb-3" controlId="minCapacity">
-          <Form.Label>Minste kapasitet (antall personer)</Form.Label>
-          <Form.Control
-            type="number"
-            min="1"
-            max="1000"
-            step="1" required
-            placeholder="Skriv inn antall personer"
-            value={minCapacity}
-            onChange={e => setMinCapacity(e.target.value)}
-          />
-        </Form.Group>
+          {/* Filtrerer på hvor mange personer rommet minst må ha plass til. */}
+          <Form.Group className="mb-3" controlId="minCapacity">
+            <Form.Label>Minste kapasitet (antall personer)</Form.Label>
+            <Form.Control
+              type="number"
+              min="1"
+              max="1000"
+              step="1" required
+              placeholder="Skriv inn antall personer"
+              value={minCapacity}
+              onChange={e => setMinCapacity(e.target.value)}
+            />
+          </Form.Group>
 
-        {/* Velger starten på tidsperioden. */}
-        <Form.Group className="mb-3" controlId="startTime">
-          <Form.Label>Fra dato og klokkeslett</Form.Label>
-          <Form.Control
-            type="datetime-local"
-            value={startTime}
-            onChange={e => setStartTime(e.target.value)}
-          />
-        </Form.Group>
+          {/* Velger starten på tidsperioden. */}
+          <Form.Group className="mb-3" controlId="startTime">
+            <Form.Label>Fra dato og klokkeslett</Form.Label>
+            <Form.Control
+              type="datetime-local"
+              value={startTime}
+              onChange={e => setStartTime(e.target.value)}
+            />
+          </Form.Group>
 
-        {/* Velger slutten på tidsperioden. */}
-        <Form.Group className="mb-3" controlId="endTime">
-          <Form.Label>Til dato og klokkeslett</Form.Label>
-          <Form.Control
-            type="datetime-local"
-            value={endTime}
-            onChange={e => setEndTime(e.target.value)}
-          />
-        </Form.Group>
+          {/* Velger slutten på tidsperioden. */}
+          <Form.Group className="mb-3" controlId="endTime">
+            <Form.Label>Til dato og klokkeslett</Form.Label>
+            <Form.Control
+              type="datetime-local"
+              value={endTime}
+              onChange={e => setEndTime(e.target.value)}
+            />
+          </Form.Group>
+
+        </div>
 
         {/* Lagrer om søket skal begrenses til ledige rom. */}
         <Form.Check
@@ -231,26 +237,27 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
           </p>
         )}
 
-        <p className="text-muted">
+       <p className="text-muted room-search-help">
           Velg en tidsperiode og kryss av «Vis kun ledige rom» for å søke etter ledige rom.
         </p>
 
-        <Button
-          type="submit"
-          variant="primary"
-          className="mb-3 me-2"
-        >
-          Søk
-        </Button>
+        <div className="room-search-actions">
+          <Button
+            type="submit"
+            variant="primary"
+            className="room-search-button"
+          >
+            Søk
+          </Button>
 
-        <Button
-          type="button"
-          variant="secondary"
-          className="mb-3"
-          onClick={resetFilters}
-        >
-          Nullstill filtre
-        </Button>
+          <Button
+            type="button"
+            variant="outline-dark"
+            onClick={resetFilters}
+          >
+            Nullstill filtre
+          </Button>
+        </div>
 
       </Form>
       {/* Viser feilmelding når rommet ikke kan slettes. */}
@@ -267,10 +274,10 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
         </p>
       )}
 
-     {/*Condition rendering med &&: Viser resultat når kapasitet er gyldig og det ikke er tidfeil*/}
-      {isCapacityValid && !timeError && ( 
+      {/*Condition rendering med &&: Viser resultat når kapasitet er gyldig og det ikke er tidfeil*/}
+      {isCapacityValid && !timeError && (
         <>
-         {/*Condition rendering med ternary (? :): Viser enten ingen treff eller romtabell*/}
+          {/*Condition rendering med ternary (? :): Viser enten ingen treff eller romtabell*/}
           {filteredRooms.length === 0 ? (
             <p>Søket ditt gir ingen treff</p>
           ) : (
