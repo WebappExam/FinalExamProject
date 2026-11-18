@@ -1,21 +1,21 @@
+import { Nav, Navbar } from 'react-bootstrap'; // Henter menykomponenter fra react-bootstrap
+import { Link } from 'react-router-dom';
 
-
-import { Nav, Navbar } from 'react-bootstrap'; //Henter menykomponent fra react-bootstrap
-
-const NavMenu = () => { //Lager komponent NavMenu 
+const NavMenu = () => { // Lager komponenten NavMenu
   return (
-    
+    <Navbar expand="lg"> {/* Menyen tilpasser seg skjermstørrelsen */}
+      <Navbar.Brand as={Link} to="/">Study Room Booking</Navbar.Brand>
+      <Navbar.Toggle aria-controls="basic-navbar-nav" />
 
-    <Navbar expand="lg"> {/*Meny expander på større og mindre skjermer*/}
-        <Navbar.Brand href="/">Study Room Booking</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" /> {/*Toggle for å vise menyen på mindre skjermer*/}
-        <Navbar.Collapse id="basic-navbar-nav"> {/*Styrer knapp og lenker i menyen*/}
+      <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="me-auto">
-          <Nav.Link href="/">Home</Nav.Link>
-            <Nav.Link href="/rooms">Rooms</Nav.Link> {/*Lenke til romoversikt*/}
+          <Nav.Link as={Link} to="/">Hjem</Nav.Link>
+          <Nav.Link as={Link} to="/rooms">Rom</Nav.Link>
+          <Nav.Link as={Link} to="/bookings">Mine bookinger</Nav.Link>
+          <Nav.Link as={Link} to="/bookingcreate">Opprett booking</Nav.Link>
         </Nav>
       </Navbar.Collapse>
-  </Navbar>
+    </Navbar>
   );
 };
 

@@ -1,48 +1,181 @@
 ﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
 
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+/*--- header start ---*/
+.site-header {
+  background-color: rgb(255, 213, 0);
+  padding: 0.75rem 1rem;
 }
 
-a {
-  color: #0077cc;
+.site-header ::deep .site-header-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #000;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.site-header ::deep .site-header-brand img {
+  display: block;
+  width: auto;
+  height: 3.25rem;
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.site-header ::deep .navbar-nav {
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+.site-header ::deep .nav-link {
+  color: #000;
+  font-weight: 600;
 }
 
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+.site-header ::deep .nav-link:hover,
+.site-header ::deep .nav-link:focus {
+  color: white;
 }
 
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+.site-header ::deep .navbar-toggler {
+  border-color: rgba(0, 0, 0, 0.5);
 }
 
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+/*--- footer start ---*/
+.bottom-footer {
+  background-color: rgb(255, 213, 0);
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  width: 100;
+}
+
+/*footer ul (unordered list) decorations turned off*/
+.bottom-footer ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/*flex-container class modificatrions*/
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+@media (max-width: 892px) {
+  .flex-container {
+      flex-direction: column;
+  }
+}
+
+.flex-container h3{
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.flex-container a{
+  text-decoration: none;
+  color: black;
+  transition: all 0.1s ease;
+}
+
+.flex-container ul li a:hover {
+  text-decoration: underline;
+  color: white;
+}
+
+/*nyhetsbrev-cotainer*/
+.nyhetsbrev-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 904px) {
+  .nyhetsbrev-container {
+      justify-content: left;
+  }
+}
+
+.nyhetsbrev-container a{
+  text-decoration: none;
+}
+
+/*nyhetsbrev-button class*/
+.nyhetsbrev-button {
+  background-color: rgb(0, 0, 0);
+  color: white;
+  margin: 1.5em;
+  margin-bottom: 0;
+  padding: 1.5em;
+  border-radius: 15px;
+}
+
+.nyhetsbrev-button a {
+  color: white;
+}
+
+/*nyhetsbrev class*/
+.nyhetsbrev {
+  padding: 1.5em;
+  margin: 1.5em;
+  margin-bottom: 0;
+}
+
+/*top-footer-border class*/
+.top-footer-border {
+  flex-grow: 1;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid black;
+}
+
+/*about class*/
+.about {
+  flex-grow: 1;
+  flex-basis: 100%;
+  margin: 1.5em;
+  padding: 1.5em;
+  line-height: 1.65em;
+}
+
+.about h3 {
+  line-height: 3em;
+}
+
+.link-kontakt-oss {
+  margin-top: 1em;
+  font-weight: bold;
+}
+
+/*contact class*/
+.related-links {
+  flex-grow: 1;
+  flex-basis: 100%;
+  margin: 1.5em;
+  padding: 1.5em;
+  line-height: 1.65em;
+}
+
+.related-links h3 {
+  line-height: 2em;
+}
+
+/*socials class*/
+.socials {
+  flex-grow: 1;
+  flex-basis: 100%;
+  margin: 1.5em;
+  padding: 1.5em;
+  line-height: 2.5em;
+}
+
+/*socials class ikoner*/
+.socials img {
+  width: 2em; /* samme størrelse alle ikoner */
+  height: 2em;
+  margin-right: 0.5em; /* Space mellom link og ikoner */
+  vertical-align: middle;
 }

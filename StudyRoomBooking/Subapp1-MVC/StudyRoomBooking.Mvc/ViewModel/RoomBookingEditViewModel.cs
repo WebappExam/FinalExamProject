@@ -17,10 +17,11 @@ public class RoomBookingEditViewModel
     [Required(ErrorMessage = "Sluttidspunkt er påkrevd.")]
     public DateTime? EndTime { get; set; }
 
-    [Required(ErrorMessage = "Skriv inn kursnavn.")]
-    [StringLength(30, ErrorMessage = "Kursnavn kan ikke være lengre enn 30 tegn.")]
-    public string Course { get; set; } = string.Empty;
 
+    [StringLength(30, ErrorMessage = "Kursnavn kan ikke være lengre enn 30 tegn.")]
+    public string? Course { get; set; } 
+
+    [Required(ErrorMessage ="Skriv inn en beskrivelse")]
     [StringLength(200, ErrorMessage = "Beskrivelsen kan ikke være lengre enn 200 tegn.")]
-    public string? Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 }

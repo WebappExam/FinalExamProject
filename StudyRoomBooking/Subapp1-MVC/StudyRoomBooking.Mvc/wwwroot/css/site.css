@@ -1,4 +1,17 @@
 html {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+} /*hele html har denne teksten som standard*/
+
+body {
+  margin: 0;
+}
+
+main {
+  padding-top: 7em;
+  width: 100%;
+}
+
+html {
   font-size: 14px;
 }
 
@@ -15,10 +28,6 @@ html {
 html {
   position: relative;
   min-height: 100%;
-}
-
-body {
-  margin-bottom: 60px;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {

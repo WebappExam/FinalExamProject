@@ -30,6 +30,12 @@ var app = builder.Build();
 await app.EnsureStudyRoomRolesAsync();
 
 
+// Viser en generell feilside utenfor utviklingsmiljøet.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+}
+
 // Legg inn eksempeldata med: dotnet run -- --seed
 
 /*

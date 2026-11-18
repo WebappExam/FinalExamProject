@@ -1,4 +1,3 @@
-
 @model StudyRoomBooking.Mvc.viewModel.RoomBookingEditViewModel
 
 @{
@@ -52,7 +51,7 @@
 
                 <div class="mb-3">
                     <label asp-for="Course"
-                           class="form-label">Kursnavn</label>
+                           class="form-label">Kursnavn(valgfritt)</label>
 
                     <input asp-for="Course"
                            class="form-control" />
@@ -63,14 +62,14 @@
 
                 <div class="mb-3">
                     <label asp-for="Description"
-                           class="form-label">Beskrivelse</label>
+                           class="form-label">Beskrivelse (obligatorisk)</label>
 
                     <textarea asp-for="Description"
                               class="form-control"
                               rows="4"></textarea>
-
+                    <small class="text-muted d-block">Maks 200 tegn.</small>
                     <span asp-validation-for="Description"
-                          class="text-danger"></span>
+                          class="text-danger fw-bold"></span>
                 </div>
 
                 <button type="submit"
