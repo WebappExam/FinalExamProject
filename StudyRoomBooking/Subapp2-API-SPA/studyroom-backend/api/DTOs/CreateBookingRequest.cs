@@ -7,6 +7,8 @@ public sealed class CreateBookingRequest : IValidatableObject
     [Range(1, int.MaxValue)]
     public int RoomId { get; init; }
 
+    public string? OrganizerId { get; init; }
+
     [Required]
     public DateTime? StartTime { get; init; }
 
@@ -22,6 +24,14 @@ public sealed class CreateBookingRequest : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
+        if (StartTime.HasValue &&
+            StartTime.Value < DateTime.Now)
+        {
+            yield return new ValidationResult(
+                "StartTime cannot be in the past.",
+                [nameof(StartTime)]);
+        }
+
         if (StartTime.HasValue &&
             EndTime.HasValue &&
             StartTime.Value >= EndTime.Value)
