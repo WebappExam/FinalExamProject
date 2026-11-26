@@ -17,11 +17,11 @@ public class Room
     [Display(Name = "Room name")]
     public string RoomName { get; set; } = string.Empty;
 
-    // Capacity must be between 1 and 100 people
+    // Capacity must be between 1 and 1000 people
     [Range(
         1,
         1000,
-        ErrorMessage = "Capacity must be between 1 and 100."
+        ErrorMessage = "Capacity must be between 1 and 1000."
     )]
 
     [Required]
