@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,6 +10,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/StudyRoomBooking.Mvc.styles.css" asp-append-version="true" />
 </head>
+
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm site-header">
@@ -32,17 +34,16 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                    
-                    @*Åpner oversikt over egne bookinger*@
-                    <li class ="nav-item">
-                        <a class ="nav-link text-dark"
-                        asp-area=""
-                        asp-controller="RoomBooking"
-                        asp-action="MyBookings">
-                        Mine bookinger
-                    </a>
-                </li>
-            </ul>
+                        @* Åpner oversikt over egne bookinger *@
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="RoomBooking"
+                               asp-action="MyBookings">
+                                Mine bookinger
+                            </a>
+                        </li>
+                    </ul>
+
+                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
@@ -131,4 +132,5 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>
