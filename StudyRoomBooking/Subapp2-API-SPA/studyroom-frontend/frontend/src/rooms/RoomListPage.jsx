@@ -1,9 +1,29 @@
 import { useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import RoomTable from './RoomTable';
-//mottar den felles romlisten fra APP
+import { useQuery } from '@tanstack/react-query';
+import * as LocationService from '../locations/LocationService';
 
+//mottar den felles romlisten fra APP
 const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
+
+  // Lagrer hvilken lokasjon brukeren ønsker å se rom fra.
+  const [locationId, setLocationId] = useState('');
+
+  // Henter lokasjonene til nedtrekkslisten.
+  const {
+    data: locations = [],
+    isLoading: locationsLoading,
+    error: locationsError
+  } = useQuery({
+    queryKey: ['locations'],
+    queryFn: LocationService.fetchLocations
+  });
+
+
+
+
+
   // Lagrer søketeksten og oppdaterer siden når teksten endres.
   const [searchQuery, setSearchQuery] = useState('');
   // Lagrer feilmeldingen dersom rommet ikke kan slettes.
@@ -163,6 +183,34 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
       {/* Bruker våre egne valideringsmeldinger ved innsending. */}
       <Form className="room-search-panel" onSubmit={handleSearch} noValidate>
         <div className="room-search-fields">
+
+                    <Form.Group className="mb-3" controlId="locationSearch">
+            <Form.Label>Lokasjon</Form.Label>
+            <Form.Select
+              value={locationId}
+              onChange={e => setLocationId(e.target.value)}
+              disabled={locationsLoading || !!locationsError}
+            >
+              <option value="">
+                {locationsLoading ? 'Laster lokasjoner …' : 'Velg lokasjon'}
+              </option>
+
+              {locations.map(location => (
+                <option
+                  key={location.locationId}
+                  value={location.locationId}
+                >
+                  {location.name}
+                </option>
+              ))}
+            </Form.Select>
+
+            {locationsError && (
+              <p className="text-danger" role="alert">
+                Kunne ikke hente lokasjonene.
+              </p>
+            )}
+          </Form.Group>
 
           <Form.Group className="mb-3" controlId="roomSearch">
             <Form.Label>Søk etter rom</Form.Label>
