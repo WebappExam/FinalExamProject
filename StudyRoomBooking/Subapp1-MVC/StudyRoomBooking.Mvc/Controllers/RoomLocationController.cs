@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.viewModel;
 using StudyRoomBooking.Mvc.Models;
@@ -7,6 +8,7 @@ using System.Linq.Expressions;
 
 namespace StudyRoomBooking.Mvc.Controllers;
 
+[Authorize]
 public class RoomLocationController : Controller
 {
     private readonly ILocationRepository _locationRepository;
@@ -31,6 +33,7 @@ public class RoomLocationController : Controller
 
     //Åpner skjema for å opprette et nytt rom på valgt 
  [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(int locationId)
     {
         var location = await _locationRepository.GetWithRoomsAsync(locationId);
@@ -50,6 +53,7 @@ public class RoomLocationController : Controller
     //Kontrollermetode som tar imot data fra skjemaet, og lagrer rom på valgt lokasjon 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(RoomCreateViewModel viewModel)
     {
         if (!ModelState.IsValid)
@@ -99,6 +103,7 @@ public class RoomLocationController : Controller
  }
 
  [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int roomId)
     {
         var room = await _roomRepository.GetRoomById(roomId);
@@ -122,6 +127,7 @@ public class RoomLocationController : Controller
 
 [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(RoomUpdateViewModel viewModel)
     {
         try
@@ -165,6 +171,7 @@ public class RoomLocationController : Controller
 
     //Viser rom før bruker sletter
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int roomId)
     {
         var room = await _roomRepository.GetRoomById(roomId);
@@ -189,6 +196,7 @@ public class RoomLocationController : Controller
     [HttpPost]
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteConfirmed(int roomId)
     {
         var room = await _roomRepository.GetRoomById(roomId);
@@ -239,6 +247,7 @@ public class RoomLocationController : Controller
     }
 
     // Viser lokasjonene på startsiden.
+    [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
         var locations = await _locationRepository.GetAllAsync();
@@ -253,6 +262,7 @@ public class RoomLocationController : Controller
     }
 
     // Viser rommene på lokasjonen brukeren valgte + søketekst som skal vises i søkefeltet
+    [AllowAnonymous]
     public async Task<IActionResult> Rooms(
         int locationId, 
         string ? searchQuery,
@@ -362,6 +372,7 @@ public class RoomLocationController : Controller
     
     // GET: RoomLocation/CreateLocation
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public IActionResult CreateLocation()
     {
         return View(new LocationFormViewModel());
@@ -370,6 +381,7 @@ public class RoomLocationController : Controller
     // POST: RoomLocation/CreateLocation
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateLocation(
         LocationFormViewModel viewModel)
     {
@@ -417,6 +429,7 @@ public class RoomLocationController : Controller
 
     // GET: RoomLocation/EditLocation/5
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> EditLocation(int id)
     {
         var location = await _locationRepository.GetByIdAsync(id);
@@ -434,6 +447,7 @@ public class RoomLocationController : Controller
     // POST: RoomLocation/EditLocation/5
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> EditLocation(
         int id,
         LocationFormViewModel viewModel)
@@ -489,6 +503,7 @@ public class RoomLocationController : Controller
 
     // GET: RoomLocation/DeleteLocation/5
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteLocation(int id)
     {
         var location =
@@ -504,6 +519,7 @@ public class RoomLocationController : Controller
     [HttpPost]
     [ActionName("DeleteLocation")]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteLocationConfirmed(int id)
     {
         var location =
@@ -557,7 +573,8 @@ public class RoomLocationController : Controller
 
      // This is for the new setup for Pilestredet
      [HttpGet]
-     public async Task<IActionResult> Buildings(int locationId)
+     [AllowAnonymous]
+    public async Task<IActionResult> Buildings(int locationId)
     {
         var location = await _locationRepository.GetWithRoomsAsync(locationId);
 

@@ -4,10 +4,16 @@ using StudyRoomBooking.Mvc.Models;
 
 namespace StudyRoomBooking.Mvc.DAL;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext(options)
+public class ApplicationDbContext(
+    DbContextOptions<ApplicationDbContext> options)
+    : IdentityDbContext<ApplicationUser>(options)
 {
     public DbSet<Location> Locations { get; set; }
+
     public DbSet<Room> Rooms { get; set; }
 
     public DbSet<RoomBooking> RoomBooking { get; set; }
+
+    public DbSet<BookingParticipant> BookingParticipants { get; set; }
 }
+

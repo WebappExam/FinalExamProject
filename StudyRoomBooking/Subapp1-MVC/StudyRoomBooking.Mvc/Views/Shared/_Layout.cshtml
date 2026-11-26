@@ -34,13 +34,16 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        @* Åpner oversikt over egne bookinger *@
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="RoomBooking"
-                               asp-action="MyBookings">
-                                Mine bookinger
-                            </a>
-                        </li>
+      @if (User.Identity?.IsAuthenticated == true)
+{
+    <li class="nav-item">
+        <a class="nav-link"
+           asp-controller="RoomBooking"
+           asp-action="MyBookings">
+            Mine bookinger
+        </a>
+    </li>
+}
                     </ul>
 
                     <partial name="_LoginPartial" />

@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.DTOs;
 using StudyRoomBooking.Mvc.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StudyRoomBooking.Mvc.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/bookings")]
 public class RoomBookingsController(

@@ -2,9 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.Models;
 using StudyRoomBooking.Mvc.viewModel;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace StudyRoomBooking.Mvc.Controllers;
 
+[Authorize]
 public class RoomBookingController : Controller
 {
     private readonly IRoomRepository _roomRepository;
@@ -251,8 +255,8 @@ catch (Exception ex)
             {
                 return NotFound();
             }
-            //Bruker kan bare kansallere egne bookinger
-            if (booking.OrganizerId != organizerId)
+            // Students can cancel their own bookings; Admins can cancel any booking.
+            if (booking.OrganizerId != organizerId && !User.IsInRole("Admin"))
             {
                 return Forbid();
             }
@@ -317,7 +321,14 @@ public async Task<IActionResult> Details(int id)
         {
             return NotFound();
         }
+    
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+     if (booking.OrganizerId != userId &&
+    !User.IsInRole("Admin"))
+    {
+     return Forbid();
+     }   
         var room = await _roomRepository.GetRoomById(booking.RoomId);
 
         var viewModel = new RoomBookingEditViewModel
@@ -352,6 +363,13 @@ public async Task<IActionResult> Details(int id)
         if (existingBooking == null)
         {
             return NotFound();
+        }
+
+        // Repeat the permission check on POST; never rely on the GET check.
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (existingBooking.OrganizerId != currentUserId && !User.IsInRole("Admin"))
+        {
+            return Forbid();
         }
 
         var room =
@@ -453,6 +471,12 @@ catch (Exception ex)
             return NotFound();
         }
 
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (booking.OrganizerId != currentUserId && !User.IsInRole("Admin"))
+        {
+            return Forbid();
+        }
+
         var room = await _roomRepository.GetRoomById(booking.RoomId);
 
         var viewModel = new RoomBookingDetailsViewModel
@@ -479,6 +503,18 @@ catch (Exception ex)
         {
             return BadRequest();
         }
+
+       var booking = await _roomBookingRepository.GetByIdAsync(id);
+       if (booking == null)
+       {
+           return NotFound();
+       }
+
+       var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+       if (booking.OrganizerId != currentUserId && !User.IsInRole("Admin"))
+       {
+           return Forbid();
+       }
 
        try
 {

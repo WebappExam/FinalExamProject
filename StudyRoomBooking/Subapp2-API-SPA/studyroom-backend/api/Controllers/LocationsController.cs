@@ -2,15 +2,18 @@ using Microsoft.AspNetCore.Mvc;
 using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.DTOs;
 using StudyRoomBooking.Mvc.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StudyRoomBooking.Mvc.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/locations")]
 public class LocationsController(
     ILocationRepository locationRepository,
     ILogger<LocationsController> logger) : ControllerBase
 {
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<List<LocationDto>>> GetLocations()
     {

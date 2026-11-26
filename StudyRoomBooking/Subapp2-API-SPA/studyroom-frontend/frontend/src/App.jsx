@@ -1,3 +1,6 @@
+import LoginPage from './auth/LoginPage';
+import RegisterPage from './auth/RegisterPage';
+import ProtectedRoute from './auth/ProtectedRoute';
 import { useState } from 'react'
 import RoomCreatePage from './rooms/RoomCreatePage'
 import RoomUpdatePage from './rooms/RoomUpdatePage'
@@ -207,6 +210,8 @@ function App() {
           <NavMenu /> {/*Viser navigasjonsmeny*/}
           <Container>
           <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
             <Route path="/" element={<HomePage />} /> {/*Viser HomePage*/}
             {/*Viser Rooms*/}<Route
               path="/rooms"
@@ -246,14 +251,16 @@ function App() {
             />
 
             <Route
-              path="/roomcreate"
-              element={
-                <RoomCreatePage
-                  locations={locations}
-                  onRoomCreated={createRoom}
-                />
-              }
-            />
+  path="/roomcreate"
+  element={
+    <ProtectedRoute>
+      <RoomCreatePage
+        locations={locations}
+        onRoomCreated={createRoom}
+      />
+    </ProtectedRoute>
+  }
+/>
 
             <Route
               path="/roomupdate/:roomId"
