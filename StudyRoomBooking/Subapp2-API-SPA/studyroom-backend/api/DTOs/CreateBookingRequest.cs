@@ -15,7 +15,6 @@ public sealed class CreateBookingRequest : IValidatableObject
     [Required]
     public DateTime? EndTime { get; init; }
 
-    [Required]
     [StringLength(50)]
     public string Course { get; init; } = string.Empty;
 
