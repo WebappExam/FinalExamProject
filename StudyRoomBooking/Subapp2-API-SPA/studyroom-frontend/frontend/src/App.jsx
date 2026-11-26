@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import RoomCreatePage from './rooms/RoomCreatePage'
 import RoomUpdatePage from './rooms/RoomUpdatePage'
 import RoomListPage from './rooms/RoomListPage'
@@ -15,10 +16,13 @@ import NavMenu from './shared/NavMenu'
 import './App.css'
 
 
+// Oppretter én felles klient for håndtering av API-data.
+const queryClient = new QueryClient();
+
 function App() {
 
   // Midlertidige lokasjoner til testing før API-et er klart.
-  const [locations, setLocations] = useState([
+  const [locations] = useState([
     { LocationId: 1, Name: 'Pilestredet' },
     { LocationId: 2, Name: 'Kjeller' },
     { LocationId: 3, Name: 'Holmlia' }
@@ -103,26 +107,7 @@ function App() {
     );
   };
 
-  // Hindrer like lokasjonsnavn og legger til en ny lokasjon.
-  const createLocation = (location) => {
-    const nameExists = locations.some(item =>
-      item.Name.toLowerCase() === location.Name.toLowerCase()
-    );
 
-    if (nameExists) {
-      throw new Error('En lokasjon med dette navnet finnes allerede.');
-    }
-
-    setLocations(currentLocations => {
-      const nextId =
-        Math.max(0, ...currentLocations.map(item => item.LocationId)) + 1;
-
-      return [
-        ...currentLocations,
-        { ...location, LocationId: nextId }
-      ];
-    });
-  };
 
   // Legger til en ny booking i den midlertidige bookinglisten.
   const createBooking = (booking) => {
@@ -166,49 +151,16 @@ function App() {
     );
   };
 
-  // Oppdaterer valgt lokasjon og hindrer dupliserte navn.
-  const updateLocation = (updatedLocation) => {
-    const nameExists = locations.some(location =>
-      location.LocationId !== updatedLocation.LocationId &&
-      location.Name.toLowerCase() === updatedLocation.Name.toLowerCase()
-    );
+    return (
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <NavMenu />
 
-    if (nameExists) {
-      throw new Error('En lokasjon med dette navnet finnes allerede.');
-    }
-
-    setLocations(currentLocations =>
-      currentLocations.map(location =>
-        location.LocationId === updatedLocation.LocationId
-          ? updatedLocation
-          : location
-      )
-    );
-  };
-
-  // Hindrer sletting av lokasjoner som fortsatt har rom.
-  const deleteLocation = (locationId) => {
-    const hasRooms = rooms.some(room => room.LocationId === locationId);
-
-    if (hasRooms) {
-      throw new Error('Lokasjonen kan ikke slettes fordi den har rom.');
-    }
-
-    setLocations(currentLocations =>
-      currentLocations.filter(location =>
-        location.LocationId !== locationId
-      )
-    );
-  };
-
-  return (
-    <>
-        <Router> {/*Router styrer navigasjon mellom sider i appen*/}
-          <NavMenu /> {/*Viser navigasjonsmeny*/}
-          <Container>
+        <Container>
           <Routes>
-            <Route path="/" element={<HomePage />} /> {/*Viser HomePage*/}
-            {/*Viser Rooms*/}<Route
+            <Route path="/" element={<HomePage />} />
+
+            <Route
               path="/rooms"
               element={
                 <RoomListPage
@@ -218,31 +170,20 @@ function App() {
                 />
               }
             />
+
             <Route
               path="/locationupdate/:locationId"
-              element={
-                <LocationUpdatePage
-                  locations={locations}
-                  onLocationUpdated={updateLocation}
-                />
-              }
+              element={<LocationUpdatePage />}
             />
 
             <Route
               path="/locations"
-              element={
-                <LocationListPage
-                  locations={locations}
-                  onLocationDeleted={deleteLocation}
-                />
-              }
+              element={<LocationListPage />}
             />
 
             <Route
               path="/locationcreate"
-              element={
-                <LocationCreatePage onLocationCreated={createLocation} />
-              }
+              element={<LocationCreatePage />}
             />
 
             <Route
@@ -270,11 +211,13 @@ function App() {
               path="/bookings"
               element={
                 <BookingListPage
-                 bookings={bookings}
-                 rooms={rooms}
-                 onBookingDeleted={deleteBooking}/>
+                  bookings={bookings}
+                  rooms={rooms}
+                  onBookingDeleted={deleteBooking}
+                />
               }
             />
+
             <Route
               path="/bookingcreate"
               element={
@@ -284,6 +227,7 @@ function App() {
                 />
               }
             />
+
             <Route
               path="/bookingupdate/:bookingId"
               element={
@@ -294,12 +238,16 @@ function App() {
                 />
               }
             />
-            <Route path="*" element={<Navigate to="/" replace />} /> {/*Hvis ingen ruter matcher, naviger til HomePage*/}
+
+            <Route
+              path="*"
+              element={<Navigate to="/" replace />}
+            />
           </Routes>
-          </Container>
-        </Router>
-    </>
-  )
+        </Container>
+      </Router>
+    </QueryClientProvider>
+  );
 }
 
-export default App
+export default App;
