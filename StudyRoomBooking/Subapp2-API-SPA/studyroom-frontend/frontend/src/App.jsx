@@ -202,11 +202,10 @@ function App() {
   };
 
   return (
-
     <>
-      <Container>
         <Router> {/*Router styrer navigasjon mellom sider i appen*/}
           <NavMenu /> {/*Viser navigasjonsmeny*/}
+          <Container>
           <Routes>
             <Route path="/" element={<HomePage />} /> {/*Viser HomePage*/}
             {/*Viser Rooms*/}<Route
@@ -271,10 +270,11 @@ function App() {
               path="/bookings"
               element={
                 <BookingListPage
-                 bookings={bookings} onBookingDeleted={deleteBooking}/>
+                 bookings={bookings}
+                 rooms={rooms}
+                 onBookingDeleted={deleteBooking}/>
               }
             />
-
             <Route
               path="/bookingcreate"
               element={
@@ -284,7 +284,6 @@ function App() {
                 />
               }
             />
-
             <Route
               path="/bookingupdate/:bookingId"
               element={
@@ -295,11 +294,10 @@ function App() {
                 />
               }
             />
-
             <Route path="*" element={<Navigate to="/" replace />} /> {/*Hvis ingen ruter matcher, naviger til HomePage*/}
           </Routes>
+          </Container>
         </Router>
-      </Container>
     </>
   )
 }

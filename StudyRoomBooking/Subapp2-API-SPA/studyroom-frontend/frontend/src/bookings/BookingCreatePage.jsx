@@ -1,11 +1,16 @@
-
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import BookingForm from './BookingForm';
 
 // Bruker det felles skjemaet til å opprette en booking.
 const BookingCreatePage = ({ rooms, onBookingCreated }) => {
   const navigate = useNavigate();
+
+  // Leser valgt rom fra adressen og kontrollerer at det finnes.
+  const [searchParams] = useSearchParams();
+  const selectedRoom = rooms.find(
+    room => Number(room.RoomId) === Number(searchParams.get('roomId'))
+  );
   const [submitting, setSubmitting] = useState(false);
 
   // Sender bookingen videre og åpner oversikten etter lagring.
@@ -26,6 +31,7 @@ const BookingCreatePage = ({ rooms, onBookingCreated }) => {
 
       <BookingForm
         rooms={rooms}
+        initialValues={{ RoomId: selectedRoom?.RoomId ?? '' }}
         onBookingChanged={handleCreate}
         onCancel={() => navigate('/bookings')}
         submitting={submitting}
