@@ -1,3 +1,4 @@
+import * as LocationService from './locations/LocationService';
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Kontrollerer svaret før JSON-dataene returneres.
@@ -77,4 +78,16 @@ export async function deleteRoom(roomId) {
       `Rommet kunne ikke slettes (status ${response.status}).`
     );
   }
+}
+// Henter alle rom fra alle lokasjoner.
+export async function fetchRooms() {
+  const locations = await LocationService.fetchLocations();
+
+  const locationsWithRooms = await Promise.all(
+    locations.map(location =>
+      fetchLocationRooms(location.locationId)
+    )
+  );
+
+  return locationsWithRooms.flatMap(location => location.rooms);
 }

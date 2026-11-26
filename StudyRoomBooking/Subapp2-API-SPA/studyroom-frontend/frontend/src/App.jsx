@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import RoomCreatePage from './rooms/RoomCreatePage'
 import RoomUpdatePage from './rooms/RoomUpdatePage'
@@ -15,95 +14,10 @@ import HomePage from './home/HomePage'
 import NavMenu from './shared/NavMenu'
 import './App.css'
 
-
 // Oppretter én felles klient for håndtering av API-data.
 const queryClient = new QueryClient();
 
 function App() {
-
-  //Midlertidige romdata for booking frem til Booking API er integrert.
-  const [rooms] = useState([
-    {
-      RoomId: 1,
-      RoomName: 'Grupperom 1',
-      Capacity: 6,
-      Building: 'P35',
-      RoomType: 'Grupperom',
-      LocationId: 1
-    },
-    {
-      RoomId: 2,
-      RoomName: 'Grupperom 2',
-      Capacity: 20,
-      Building: 'P38',
-      RoomType: 'Grupperom',
-      LocationId: 1
-    }
-  ]);
-
-  // Midlertidige bookinger til testing før API-et er klart.
-  const [bookings, setBookings] = useState([
-    {
-      Id: 1,
-      RoomId: 1,
-      StartTime: '2026-11-17T10:00',
-      EndTime: '2026-11-17T12:00',
-      Course: '',
-      Description: 'Gruppearbeid'
-    }
-  ]);
-
-  // Kontrollerer om en booking overlapper med en eksisterende booking.
-  const hasOverlappingBooking = (newBooking) => {
-    return bookings.some(booking =>
-      Number(booking.RoomId) === Number(newBooking.RoomId) &&
-      Number(booking.Id) !== Number(newBooking.Id) &&
-      new Date(newBooking.StartTime) < new Date(booking.EndTime) &&
-      new Date(newBooking.EndTime) > new Date(booking.StartTime)
-    );
-  };
-
-  // Legger til en ny booking i den midlertidige bookinglisten.
-  const createBooking = (booking) => {
-
-    // Hindrer at samme rom bookes på overlappende tidspunkter.
-    if (hasOverlappingBooking(booking)) {
-      throw new Error('Rommet er allerede booket i dette tidsrommet.');
-    }
-
-    setBookings(currentBookings => {
-      const nextId =
-        Math.max(0, ...currentBookings.map(item => item.Id)) + 1;
-
-      return [...currentBookings, { ...booking, Id: nextId }];
-    });
-  };
-
-  // Oppdaterer en eksisterende booking med samme ID.
-  const updateBooking = (updatedBooking) => {
-
-    // Hindrer overlappende bookinger ved redigering.
-    if (hasOverlappingBooking(updatedBooking)) {
-      throw new Error('Rommet er allerede booket i dette tidsrommet.');
-    }
-
-    setBookings(currentBookings =>
-      currentBookings.map(booking =>
-        Number(booking.Id) === Number(updatedBooking.Id)
-          ? updatedBooking
-          : booking
-      )
-    );
-
-  };
-  // Fjerner valgt booking fra den midlertidige bookinglisten.
-  const deleteBooking = (bookingId) => {
-    setBookings(currentBookings =>
-      currentBookings.filter(
-        booking => Number(booking.Id) !== Number(bookingId)
-      )
-    );
-  };
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -116,7 +30,7 @@ function App() {
 
             <Route
               path="/rooms"
-              element={<RoomListPage bookings={bookings} />}
+              element={<RoomListPage />}
             />
 
             <Route
@@ -143,38 +57,21 @@ function App() {
               path="/roomupdate/:roomId"
               element={<RoomUpdatePage />}
             />
-
             <Route
               path="/bookings"
-              element={
-                <BookingListPage
-                  bookings={bookings}
-                  rooms={rooms}
-                  onBookingDeleted={deleteBooking}
-                />
-              }
+              element={<BookingListPage />}
             />
 
             <Route
               path="/bookingcreate"
-              element={
-                <BookingCreatePage
-                  rooms={rooms}
-                  onBookingCreated={createBooking}
-                />
-              }
+              element={<BookingCreatePage />}
             />
 
             <Route
               path="/bookingupdate/:bookingId"
-              element={
-                <BookingUpdatePage
-                  bookings={bookings}
-                  rooms={rooms}
-                  onBookingUpdated={updateBooking}
-                />
-              }
+              element={<BookingUpdatePage />}
             />
+
             <Route
               path="*"
               element={<Navigate to="/" replace />}

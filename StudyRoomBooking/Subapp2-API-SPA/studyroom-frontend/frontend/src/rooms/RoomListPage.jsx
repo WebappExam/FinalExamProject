@@ -4,9 +4,11 @@ import RoomTable from './RoomTable';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as LocationService from '../locations/LocationService';
 import * as RoomService from '../RoomService';
+import * as BookingService from '../bookings/BookingService';
+
 
 //mottar felles romlisten fra APP
-const RoomListPage = ({bookings = [] }) => {
+const RoomListPage = () => {
 
   // Lagrer hvilken lokasjon brukeren ønsker å se rom fra.
   const [locationId, setLocationId] = useState('');
@@ -35,6 +37,16 @@ const RoomListPage = ({bookings = [] }) => {
 
   // Henter romlisten fra valgt lokasjon.
   const apiRooms = locationWithRooms?.rooms ?? [];
+
+  // Henter bookingene for å kontrollere hvilke rom som er ledige.
+  const {
+    data: bookings = [],
+    isLoading: bookingsLoading,
+    error: bookingsError
+  } = useQuery({
+    queryKey: ['bookings'],
+    queryFn: BookingService.fetchBookings
+  });
 
   // Lagrer søketeksten og oppdaterer siden når teksten endres.
   const [searchQuery, setSearchQuery] = useState('');
@@ -110,11 +122,10 @@ const RoomListPage = ({bookings = [] }) => {
 
     // Kontrollerer om rommet er booket i den valgte perioden.
     const hasOverlap = bookings.some(booking =>
-      Number(booking.RoomId) === Number(room.roomId) &&
-      new Date(appliedFilters.startTime) < new Date(booking.EndTime) &&
-      new Date(appliedFilters.endTime) > new Date(booking.StartTime)
+      Number(booking.roomId) === Number(room.roomId) &&
+      new Date(appliedFilters.startTime) < new Date(booking.endTime) &&
+      new Date(appliedFilters.endTime) > new Date(booking.startTime)
     );
-
     return matchesFilters && !hasOverlap;
   });
 
@@ -356,8 +367,22 @@ const RoomListPage = ({bookings = [] }) => {
         </p>
       )}
 
+      {/* Viser melding mens bookingene hentes. */}
+      {appliedFilters.onlyAvailable && bookingsLoading && (
+        <p>Kontrollerer ledige rom …</p>
+      )}
+
+      {/* Viser feilmelding dersom ledighet ikke kan kontrolleres. */}
+      {appliedFilters.onlyAvailable && bookingsError && (
+        <p className="text-danger" role="alert">
+          Kunne ikke kontrollere hvilke rom som er ledige.
+        </p>
+      )}
+
+
       {/*Condition rendering med &&: Viser resultat når kapasitet er gyldig og det ikke er tidfeil*/}
-      {locationId && !roomsLoading && !roomsError && isCapacityValid && !timeError && (
+      {locationId && !roomsLoading && !roomsError && isCapacityValid && !timeError &&
+      (!appliedFilters.onlyAvailable || (!bookingsLoading && !bookingsError)) && (
         <>
           {/*Condition rendering med ternary (? :): Viser enten ingen treff eller romtabell*/}
           {filteredRooms.length === 0 ? (
