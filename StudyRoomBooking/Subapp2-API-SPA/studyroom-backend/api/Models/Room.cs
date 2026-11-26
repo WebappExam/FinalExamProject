@@ -20,12 +20,12 @@ public class Room
     // Capacity must be between 1 and 100 people
     [Range(
         1,
-        100,
+        1000,
         ErrorMessage = "Capacity must be between 1 and 100."
     )]
 
     [Required]
-    public int? Capacity { get; set; } 
+    public int? Capacity { get; set; }
 
     // Building name must be between 2 and 50 characters
     [StringLength(
