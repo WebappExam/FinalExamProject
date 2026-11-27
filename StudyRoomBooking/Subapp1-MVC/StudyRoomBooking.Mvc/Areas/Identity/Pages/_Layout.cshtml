@@ -1,0 +1,24 @@
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    var page = ViewContext.RouteData.Values["page"]?.ToString();
+}
+
+<div class="@(page == "/Account/ForgotPassword" || page == "/Account/ResendEmailConfirmation" ? "identity-recovery" : "")">
+@if (page == "/Account/ForgotPassword" ||
+     page == "/Account/ResendEmailConfirmation" ||
+     page == "/Account/Register")
+{
+    <a href="@Url.Page("/Account/Login", new { area = "Identity" })"
+       class="btn btn-outline-dark mb-3">
+        ← Tilbake til innlogging
+    </a>
+}
+    @RenderBody()
+</div>
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}
