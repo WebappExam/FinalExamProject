@@ -1,7 +1,7 @@
 @model StudyRoomBooking.Mvc.viewModel.RoomBookingDetailsViewModel
 
 @{
-    ViewData["Title"] = "Booking Details";
+    ViewData["Title"] = "Booking detaljer";
 }
 
 <div class="container mt-4">
@@ -11,7 +11,7 @@
 
             <hr />
 
-            <p><strong>Room:</strong> @Model.RoomName</p>
+            <p><strong>Rom:</strong> @Model.RoomName</p>
 
             <p>
                 <strong>Start:</strong>
@@ -19,7 +19,7 @@
             </p>
 
             <p>
-                <strong>End:</strong>
+                <strong>Slutt:</strong>
                 @Model.EndTime.ToString("dd MMM yyyy HH:mm")
             </p>
 
