@@ -13,6 +13,7 @@ public class RoomBookingListViewModel
 
     public DateTime StartTime { get; set;}
     public DateTime EndTime {get; set;}
+    public int NumberOfParticipants { get; set; }
     
 }
 

@@ -32,6 +32,10 @@ public class RoomBooking
     public string OrganizerId { get; set; } = string.Empty;
     public ApplicationUser Organizer { get; set; } = null!;
 
+    //Number of participants in that booking
+    [Required]
+    public int NumberOfParticipants { get; set; } = 1;
+
     //Navigation property
     public ICollection<BookingParticipant> Participants { get; set; } = new List<BookingParticipant>();
 

@@ -23,6 +23,10 @@
                 @Model.EndTime.ToString("dd MMM yyyy HH:mm")
             </p>
 
+            <p>
+                <strong>Participants:</strong>
+                @Model.NumberOfParticipants
+            </p>
             <h5>Description</h5>
 
             <p>
@@ -31,20 +35,15 @@
                     : Model.Description)
             </p>
 
-<a asp-action="Edit"
-   asp-route-id="@Model.Id"
-   class="btn btn-warning">
-    Rediger booking
-</a>
-    <a asp-action="Delete"
-   asp-route-id="@Model.Id"
-   class="btn btn-danger">
-    Slett booking
-</a>
-     <a asp-action="Index"
-        class="btn btn-outline-secondary">
-       Back to Study Sessions
-  </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                Rediger booking
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                Slett booking
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                Back to Study Sessions
+            </a>
 
         </div>
     </div>

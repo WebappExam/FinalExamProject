@@ -13,6 +13,9 @@ public class ApplicationUser : IdentityUser
     public string LastName { get; set; } = string.Empty;
     public string StudyProgram { get; set; } = string.Empty;
 
+    //Amount of student booked in a room
+    public int NumberOfParticipants { get; set; }
+
     // Navigation property
     
     public ICollection<RoomBooking> OrganizedBookings { get; set; } = new List<RoomBooking>();
