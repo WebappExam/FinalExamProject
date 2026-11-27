@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.DTOs;
 using StudyRoomBooking.Mvc.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StudyRoomBooking.Mvc.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/rooms")]
 public class RoomsController(
@@ -12,9 +14,10 @@ public class RoomsController(
     IRoomRepository roomRepository,
     ILogger<RoomsController> logger) : ControllerBase
 {
-    [HttpGet("{roomId:int}")]
-    public async Task<ActionResult<RoomDto>> GetRoom(int roomId)
-    {
+   [AllowAnonymous]
+[HttpGet("{roomId:int}")]
+public async Task<ActionResult<RoomDto>> GetRoom(int roomId)
+ {
         var room = await roomRepository.GetRoomById(roomId);
         return room is null ? NotFound() : Ok(ToDto(room));
     }

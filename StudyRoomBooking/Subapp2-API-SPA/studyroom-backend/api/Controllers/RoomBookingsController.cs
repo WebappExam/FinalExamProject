@@ -4,7 +4,9 @@ using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.DTOs;
 using StudyRoomBooking.Mvc.Models;
 namespace StudyRoomBooking.Mvc.Controllers;
+using Microsoft.AspNetCore.Authorization;
 
+[Authorize]
 [ApiController]
 [Route("api/bookings")]
 public class RoomBookingsController(

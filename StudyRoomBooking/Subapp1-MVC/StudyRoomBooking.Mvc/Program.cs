@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.Extensions; 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 
