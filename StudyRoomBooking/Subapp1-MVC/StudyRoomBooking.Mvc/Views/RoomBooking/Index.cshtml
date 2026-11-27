@@ -1,16 +1,16 @@
 @model List<StudyRoomBooking.Mvc.viewModel.RoomBookingDetailsViewModel>
 
 @{
-    ViewData["Title"] = "Study Sessions";
+    ViewData["Title"] = "Booking oversikt";
 }
 
 <div class="container mt-4">
-    <h1>Study Sessions</h1>
+  <h1 class="room-page-title">Bookingoversikt</h1>
     <p class="text-muted">
-        Browse scheduled study sessions.
+        Oversikt over planlagte bookinger.
     </p>
-    
- @* Display success message after deleting a booking *@
+
+ @*Viser bekreftelse etter sletting av booking *@
     @if (TempData["SuccessMessage"] is string message)
     {
         <div class="alert alert-success" role="alert">
@@ -28,7 +28,7 @@
     @if (!Model.Any())
     {
         <div class="alert alert-info">
-            No study sessions have been created yet.
+            Det er ingen registrerte bookinger ennå.
         </div>
     }
     else
@@ -44,24 +44,24 @@
                             </h5>
 
                             <p class="card-text">
-                                <strong>Room:</strong> @booking.RoomName
+                                <strong>Rom:</strong> @booking.RoomName
                             </p>
 
                             <p>
-                                <strong>Start:</strong>
+                                <strong>Starttid:</strong>
                                 @booking.StartTime.ToString("dd MMM yyyy HH:mm")
                             </p>
 
                             <p>
-                                <strong>End:</strong>
+                                <strong>Sluttid:</strong>
                                 @booking.EndTime.ToString("dd MMM yyyy HH:mm")
                             </p>
 
                             <a asp-controller="RoomBooking"
                                asp-action="Details"
                                asp-route-id="@booking.Id"
-                               class="btn btn-primary">
-                                View Details
+                               class="btn room-search-button">
+                                Vis detaljer
                             </a>
                         </div>
                     </div>
@@ -70,4 +70,3 @@
         </div>
     }
 </div>
-

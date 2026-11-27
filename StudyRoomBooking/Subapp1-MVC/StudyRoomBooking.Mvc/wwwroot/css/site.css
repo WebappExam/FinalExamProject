@@ -79,6 +79,7 @@ main:has(.home-hero) {
   max-width: 680px;
   text-align: left;
   min-width: 0;
+  padding-left: 2rem;
 }
 
 /* Stor overskrift som tilpasser seg skjermbredden. */
@@ -124,7 +125,7 @@ main:has(.home-hero) {
 .home-image {
   display: block;
   width: 100%;
-  height: 420px;
+  height: 580px;
   object-fit: cover;
   border-radius: 0;
 }
