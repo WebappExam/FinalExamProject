@@ -65,8 +65,8 @@ const BookingForm = ({
             return;
         }
         // Kurs er valgfritt, men kan ikke overstige 30 tegn.
-        if (course.trim().length > 30) {
-            setValidationError('Kursnavn kan ikke være lengre enn 30 tegn.');
+        if (course.trim().length > 50) {
+            setValidationError('Kursnavn kan ikke være lengre enn 50 tegn.');
             return;
         }
 
@@ -135,6 +135,7 @@ const BookingForm = ({
                     type="text"
                     value={course}
                     onChange={e => setCourse(e.target.value)}
+                    maxLength={50}
                 />
             </Form.Group>
 

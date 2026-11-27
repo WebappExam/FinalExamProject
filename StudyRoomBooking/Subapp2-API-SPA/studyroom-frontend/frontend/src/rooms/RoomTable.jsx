@@ -20,47 +20,46 @@ const RoomTable = ({ rooms, onRoomDeleted, isAdmin = false }) => {
       <tbody>
         {/* Lager en tabellrad for hvert rom i listen. */}
         {rooms.map(room => (
-          <tr key={room.RoomId}>
-            <td>{room.RoomId}</td>
-            <td>{room.RoomName}</td>
-            <td>{room.Capacity}</td>
-            <td>{room.Building}</td>
+          <tr key={room.roomId}>
+            <td>{room.roomId}</td>
+            <td>{room.roomName}</td>
+            <td>{room.capacity}</td>
+            <td>{room.building}</td>
             <td>
-              <Link
-                to={`/bookingcreate?roomId=${room.RoomId}`}
-                className="btn btn-outline-dark btn-sm"
-              >
-                Book rom
-              </Link>
+            <Link
+              to={`/bookingcreate?roomId=${room.roomId}`}
+              className="btn btn-outline-dark btn-sm"
+            >
+              Book rom
+            </Link>
+          </td>
+
+            { isAdmin && (
+            <td>
+              <div className="d-flex flex-wrap gap-2">
+                <Link
+                 to={`/roomupdate/${room.roomId}`}
+                  className="btn btn-outline-dark btn-sm"
+                >
+                  Rediger
+                </Link>
+
+                <Button
+                  type="button"
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={() => onRoomDeleted(room.roomId)}
+                >
+                  Slett
+                </Button>
+              </div>
             </td>
+          )}
 
-
-            {isAdmin && (
-              <td>
-                <div className="d-flex flex-wrap gap-2">
-                  <Link
-                    to={`/roomupdate/${room.RoomId}`}
-                    className="btn btn-outline-dark btn-sm"
-                  >
-                    Rediger
-                  </Link>
-
-                  <Button
-                    type="button"
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={() => onRoomDeleted(room.RoomId)}
-                  >
-                    Slett
-                  </Button>
-                </div>
-              </td>
-            )}
-
-          </tr>
+      </tr>
         ))}
-      </tbody>
-    </Table>
+    </tbody>
+    </Table >
   );
 };
 

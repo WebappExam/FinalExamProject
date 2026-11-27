@@ -1,28 +1,63 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import LocationForm from './LocationForm';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import * as LocationService from './LocationService';
 
-const LocationUpdatePage = ({ locations, onLocationUpdated }) => {
+const LocationUpdatePage = () => {
   // Henter lokasjons-ID fra nettadressen.
   const { locationId } = useParams();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
 
-  const location = locations.find(
-    item => item.LocationId === Number(locationId)
-  );
+  const queryClient = useQueryClient();
+
+  // Henter valgt lokasjon fra API-et.
+  const {
+    data: location,
+    isLoading,
+    error: fetchError
+  } = useQuery({
+    queryKey: ['locations', locationId],
+    queryFn: () => LocationService.fetchLocationById(locationId),
+    select: data => ({
+      LocationId: data.locationId,
+      Name: data.name
+    })
+  });
+
+  // Oppdaterer lokasjonen og markerer lagrede data for ny henting.
+  const updateMutation = useMutation({
+    mutationFn: LocationService.updateLocation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
+    }
+  });
 
   // Sender endringene videre og åpner oversikten etter lagring.
   const handleUpdate = async (updatedLocation) => {
     setSubmitting(true);
 
     try {
-      await onLocationUpdated(updatedLocation);
+      await updateMutation.mutateAsync(updatedLocation);
       navigate('/locations');
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return <p role="status">Laster lokasjonen …</p>;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="text-start">
+        <p role="alert">{fetchError.message}</p>
+        <Link to="/locations">Tilbake til lokasjonsoversikten</Link>
+      </div>
+    );
+  }
 
   if (!location) {
     return (

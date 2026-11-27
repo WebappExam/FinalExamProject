@@ -40,37 +40,38 @@ const BookingTable = ({ bookings, rooms = [], onBookingDeleted }) => {
       <tbody>
         {/* Lager en rad for hver booking. */}
         {bookings.map(booking => (
-          <tr key={booking.Id}>
+          <tr key={booking.id}>
             <td>
               {rooms.find(room =>
-                Number(room.RoomId) === Number(booking.RoomId)
-              )?.RoomName ?? 'Ukjent rom'}
+                room.roomId === booking.roomId
+              )?.roomName ?? 'Ukjent rom'}
             </td>
-            <td>{formatDateTime(booking.StartTime)}</td>
-            <td>{formatDateTime(booking.EndTime)}</td>
-            <td>{booking.Course}</td>
-            <td>{booking.Description}</td>
-              <td>
-                <div className="booking-actions">
-                  <Button
-                    type="button"
-                    variant="outline-dark"
-                    size="sm"
-                    onClick={() => navigate(`/bookingupdate/${booking.Id}`)}
-                  >
-                    Rediger
-                  </Button>
 
-                  <Button
-                    type="button"
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={() => onBookingDeleted(booking.Id)}
-                  >
-                    Slett
-                  </Button>
-                </div>
-              </td>
+            <td>{formatDateTime(booking.startTime)}</td>
+            <td>{formatDateTime(booking.endTime)}</td>
+            <td>{booking.course}</td>
+            <td>{booking.description}</td>
+            <td>
+              <div className="booking-actions">
+                <Button
+                  type="button"
+                  variant="outline-dark"
+                  size="sm"
+                  onClick={() => navigate(`/bookingupdate/${booking.id}`)}
+                >
+                  Rediger
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={() => onBookingDeleted(booking.id)}
+                >
+                  Slett
+                </Button>
+              </div>
+            </td>
           </tr>
         ))}
       </tbody>

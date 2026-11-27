@@ -20,7 +20,7 @@ public sealed class RoomWriteDto
     public string RoomName { get; init; } = string.Empty;
 
     [Required]
-    [Range(1, 100)]
+    [Range(1, 1000)]
     public int? Capacity { get; init; }
 
     [Required]

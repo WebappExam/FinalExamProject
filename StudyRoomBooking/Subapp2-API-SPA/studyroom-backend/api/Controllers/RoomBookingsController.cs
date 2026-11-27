@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.DTOs;
 using StudyRoomBooking.Mvc.Models;
-
 namespace StudyRoomBooking.Mvc.Controllers;
 
 [ApiController]

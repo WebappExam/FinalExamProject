@@ -1,13 +1,67 @@
 import { useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import RoomTable from './RoomTable';
-//mottar den felles romlisten fra APP
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import * as LocationService from '../locations/LocationService';
+import * as RoomService from '../RoomService';
+import * as BookingService from '../bookings/BookingService';
 
-const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
+
+//mottar felles romlisten fra APP
+const RoomListPage = () => {
+
+  // Lagrer hvilken lokasjon brukeren ønsker å se rom fra.
+  const [locationId, setLocationId] = useState('');
+
+  // Henter lokasjonene til nedtrekkslisten.
+  const {
+    data: locations = [],
+    isLoading: locationsLoading,
+    error: locationsError
+  } = useQuery({
+    queryKey: ['locations'],
+    queryFn: LocationService.fetchLocations
+  });
+
+  // Henter rommene som tilhører valgt lokasjon.
+  const {
+    data: locationWithRooms,
+    isLoading: roomsLoading,
+    error: roomsError
+  } = useQuery({
+
+    queryKey: ['rooms', locationId],
+    queryFn: () => RoomService.fetchLocationRooms(locationId),
+    enabled: !!locationId
+  });
+
+  // Henter romlisten fra valgt lokasjon.
+  const apiRooms = locationWithRooms?.rooms ?? [];
+
+  // Henter bookingene for å kontrollere hvilke rom som er ledige.
+  const {
+    data: bookings = [],
+    isLoading: bookingsLoading,
+    error: bookingsError
+  } = useQuery({
+    queryKey: ['bookings'],
+    queryFn: BookingService.fetchBookings
+  });
+
   // Lagrer søketeksten og oppdaterer siden når teksten endres.
   const [searchQuery, setSearchQuery] = useState('');
   // Lagrer feilmeldingen dersom rommet ikke kan slettes.
   const [deleteError, setDeleteError] = useState('');
+
+  const queryClient = useQueryClient();
+
+  // Oppdaterer romlisten etter vellykket sletting.
+  const deleteMutation = useMutation({
+    mutationFn: RoomService.deleteRoom,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rooms'] });
+    }
+  });
 
   // Lagrer obligatorisk minste kapasitet = 1
   const [minCapacity, setMinCapacity] = useState('1');
@@ -51,15 +105,15 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
   }
 
   // Filtrerer på romnavn, bygg, kapasitet og eventuelt ledighet.
-  const filteredRooms = rooms.filter(room => {
+  const filteredRooms = apiRooms.filter(room => {
     const matchesFilters =
-      room.RoomName.toLowerCase().includes(
+      room.roomName.toLowerCase().includes(
         appliedFilters.searchQuery.trim().toLowerCase()
       ) &&
-      room.Building.toLowerCase().includes(
+      room.building.toLowerCase().includes(
         appliedFilters.building.trim().toLowerCase()
       ) &&
-      room.Capacity >= Number(appliedFilters.minCapacity);
+      room.capacity >= Number(appliedFilters.minCapacity);
 
     // Vanlig søk viser også rom som har bookinger.
     if (!appliedFilters.onlyAvailable) {
@@ -68,11 +122,10 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
 
     // Kontrollerer om rommet er booket i den valgte perioden.
     const hasOverlap = bookings.some(booking =>
-      Number(booking.RoomId) === Number(room.RoomId) &&
-      new Date(appliedFilters.startTime) < new Date(booking.EndTime) &&
-      new Date(appliedFilters.endTime) > new Date(booking.StartTime)
+      Number(booking.roomId) === Number(room.roomId) &&
+      new Date(appliedFilters.startTime) < new Date(booking.endTime) &&
+      new Date(appliedFilters.endTime) > new Date(booking.startTime)
     );
-
     return matchesFilters && !hasOverlap;
   });
 
@@ -116,14 +169,14 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
   const handleRoomDeleted = async (roomId) => {
     setDeleteError('');
 
-    const room = rooms.find(item => item.RoomId === roomId);
+    const room = apiRooms.find(item => item.roomId === roomId);
 
     if (!room) {
       return;
     }
 
     const confirmDelete = window.confirm(
-      `Er du sikker på at du vil slette rommet «${room.RoomName}»?`
+      `Er du sikker på at du vil slette rommet «${room.roomName}»?`
     );
 
     if (!confirmDelete) {
@@ -131,7 +184,7 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
     }
 
     try {
-      await onRoomDeleted(roomId);
+      await deleteMutation.mutateAsync(roomId);
     } catch (error) {
       setDeleteError(
         error instanceof Error
@@ -149,7 +202,7 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
         Søk etter romnavn, bygg og kapasitet, eller finn ledige rom i ønsket tidsrom.
       </p>
 
-{/*---------------------Skjule oprett rom og administrer lokasjoner fra vanlig brukere --------------------------*/}
+      {/*---------------------Skjule oprett rom og administrer lokasjoner fra vanlig brukere --------------------------*/}
       {/* Åpner opprettingssiden uten å laste hele appen på nytt. *
       <Link to="/roomcreate" className="btn btn-primary mb-3">
         Opprett nytt rom
@@ -163,6 +216,34 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
       {/* Bruker våre egne valideringsmeldinger ved innsending. */}
       <Form className="room-search-panel" onSubmit={handleSearch} noValidate>
         <div className="room-search-fields">
+
+          <Form.Group className="mb-3" controlId="locationSearch">
+            <Form.Label>Lokasjon</Form.Label>
+            <Form.Select
+              value={locationId}
+              onChange={e => setLocationId(e.target.value)}
+              disabled={locationsLoading || !!locationsError}
+            >
+              <option value="">
+                {locationsLoading ? 'Laster lokasjoner …' : 'Velg lokasjon'}
+              </option>
+
+              {locations.map(location => (
+                <option
+                  key={location.locationId}
+                  value={location.locationId}
+                >
+                  {location.name}
+                </option>
+              ))}
+            </Form.Select>
+
+            {locationsError && (
+              <p className="text-danger" role="alert">
+                Kunne ikke hente lokasjonene.
+              </p>
+            )}
+          </Form.Group>
 
           <Form.Group className="mb-3" controlId="roomSearch">
             <Form.Label>Søk etter rom</Form.Label>
@@ -237,7 +318,7 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
           </p>
         )}
 
-       <p className="text-muted room-search-help">
+        <p className="text-muted room-search-help">
           Velg en tidsperiode og kryss av «Vis kun ledige rom» for å søke etter ledige rom.
         </p>
 
@@ -274,8 +355,34 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
         </p>
       )}
 
+      {/* Viser melding mens rommene hentes fra API-et. */}
+      {roomsLoading && (
+        <p>Laster rom …</p>
+      )}
+
+      {/* Viser feilmelding dersom rommene ikke kan hentes. */}
+      {roomsError && (
+        <p className="text-danger" role="alert">
+          Kunne ikke hente rommene.
+        </p>
+      )}
+
+      {/* Viser melding mens bookingene hentes. */}
+      {appliedFilters.onlyAvailable && bookingsLoading && (
+        <p>Kontrollerer ledige rom …</p>
+      )}
+
+      {/* Viser feilmelding dersom ledighet ikke kan kontrolleres. */}
+      {appliedFilters.onlyAvailable && bookingsError && (
+        <p className="text-danger" role="alert">
+          Kunne ikke kontrollere hvilke rom som er ledige.
+        </p>
+      )}
+
+
       {/*Condition rendering med &&: Viser resultat når kapasitet er gyldig og det ikke er tidfeil*/}
-      {isCapacityValid && !timeError && (
+      {locationId && !roomsLoading && !roomsError && isCapacityValid && !timeError &&
+      (!appliedFilters.onlyAvailable || (!bookingsLoading && !bookingsError)) && (
         <>
           {/*Condition rendering med ternary (? :): Viser enten ingen treff eller romtabell*/}
           {filteredRooms.length === 0 ? (
@@ -290,6 +397,6 @@ const RoomListPage = ({ rooms, bookings = [], onRoomDeleted }) => {
       )}
     </div>
   );
-};
 
+};
 export default RoomListPage;
