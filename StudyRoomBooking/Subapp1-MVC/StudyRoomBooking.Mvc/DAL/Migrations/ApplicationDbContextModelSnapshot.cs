@@ -190,6 +190,9 @@ namespace StudyRoomBooking.Mvc.Data.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("NumberOfParticipants")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("TEXT");
 
@@ -229,6 +232,9 @@ namespace StudyRoomBooking.Mvc.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BookingParticipants")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("RoomBookingId")
@@ -317,6 +323,9 @@ namespace StudyRoomBooking.Mvc.Data.Migrations
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("NumberOfParticipants")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("OrganizerId")
                         .IsRequired()

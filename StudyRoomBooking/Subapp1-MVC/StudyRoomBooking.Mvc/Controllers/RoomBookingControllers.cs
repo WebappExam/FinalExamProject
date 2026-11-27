@@ -20,97 +20,107 @@ public class RoomBookingController : Controller
     {
         _roomRepository = roomRepository;
         _roomBookingRepository = roomBookingRepository;
-        _logger =logger;
+        _logger = logger;
     }
 
     //Åpner bookingsiden for et gitt rom
 
-[HttpGet]
+    [HttpGet]
     public async Task<IActionResult> Create(int roomId)
-{
-    // Validate room ID
-    if (roomId <= 0)
     {
-        return BadRequest("Please select a room before booking.");
+        // Validate room ID
+        if (roomId <= 0)
+        {
+            return BadRequest("Please select a room before booking.");
+        }
+
+        // Retrieve room from database
+        var room = await _roomRepository.GetRoomById(roomId);
+
+        // Check if room exists
+        if (room == null)
+        {
+            return NotFound("The selected room does not exist.");
+        }
+
+        // Get current date and time without seconds
+        var now = DateTime.Now;
+
+        var startTime = new DateTime(
+            now.Year,
+            now.Month,
+            now.Day,
+            now.Hour,
+            now.Minute,
+            0
+        );
+
+        // Prepare booking form
+        var viewModel = new RoomBookingCreateViewModel
+        {
+            RoomId = roomId,
+            RoomName = room.RoomName,
+            StartTime = startTime,
+            EndTime = startTime.AddHours(1)
+        };
+
+        return View(viewModel);
     }
 
-    // Retrieve room from database
-    var room = await _roomRepository.GetRoomById(roomId);
-
-    // Check if room exists
-    if (room == null)
-    {
-        return NotFound("The selected room does not exist.");
-    }
-
-    // Get current date and time without seconds
-    var now = DateTime.Now;
-
-    var startTime = new DateTime(
-        now.Year,
-        now.Month,
-        now.Day,
-        now.Hour,
-        now.Minute,
-        0
-    );
-
-    // Prepare booking form
-    var viewModel = new RoomBookingCreateViewModel
-    {
-        RoomId = roomId,
-        RoomName = room.RoomName,
-        StartTime = startTime,
-        EndTime = startTime.AddHours(1)
-    };
-
-    return View(viewModel);
-}
-
- //POST metode
+    //POST metode
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(RoomBookingCreateViewModel viewModel)
     {
 
-    var room = await _roomRepository.GetRoomById(viewModel.RoomId);
+        var room = await _roomRepository.GetRoomById(viewModel.RoomId);
 
-    if (room == null)
+        if (room == null)
         {
             return NotFound();
         }
 
         viewModel.RoomName = room.RoomName;
 
-            //Kontrollerer at starttid ikke er i fortid
-            if (viewModel.StartTime.HasValue && 
-            viewModel.StartTime.Value < DateTime.Now)
-            {
-                 ModelState.AddModelError(
-                nameof (viewModel.StartTime),
-                "Starttidspunkt kan ikke være i fortiden");
-        }
-            if (viewModel.StartTime.HasValue &&
-            viewModel.EndTime.HasValue && 
-            viewModel.StartTime.Value >= viewModel.EndTime.Value)
+        //Kontrollerer at starttid ikke er i fortid
+        if (viewModel.StartTime.HasValue &&
+        viewModel.StartTime.Value < DateTime.Now)
         {
-            
-        ModelState.AddModelError(
-        nameof(viewModel.StartTime),
-        "Starttidspunkt må være før sluttidspunkt");
+            ModelState.AddModelError(
+           nameof(viewModel.StartTime),
+           "Starttidspunkt kan ikke være i fortiden");
+        }
+        if (viewModel.StartTime.HasValue &&
+        viewModel.EndTime.HasValue &&
+        viewModel.StartTime.Value >= viewModel.EndTime.Value)
+        {
+
+            ModelState.AddModelError(
+            nameof(viewModel.StartTime),
+            "Starttidspunkt må være før sluttidspunkt");
         } //Avslutter kontrollen av start og sluttid
 
-        if (!ModelState.IsValid || 
-        !viewModel.StartTime.HasValue || 
+
+        //Checking if number of participants exceed the allowed capacity
+        if (!room.Capacity.HasValue ||viewModel.NumberOfParticipants > room.Capacity.Value)
+        {
+            ModelState.AddModelError(
+                nameof(viewModel.NumberOfParticipants),
+                "Invalid room capacity or too many participants");
+        }
+
+        if (!ModelState.IsValid ||
+        !viewModel.StartTime.HasValue ||
         !viewModel.EndTime.HasValue)
-            {
-                return View(viewModel);
-            }
+        {
+            return View(viewModel);
+        }
+
 
         // Sjekk for overlappende bookinger
         bool hasOverlap = await _roomBookingRepository.HasOverlappingBookingsAsync(
-            viewModel.RoomId, 
-            viewModel.StartTime.Value, 
+            viewModel.RoomId,
+            viewModel.StartTime.Value,
             viewModel.EndTime.Value);
 
         if (hasOverlap)
@@ -120,14 +130,14 @@ public class RoomBookingController : Controller
         }
 
         //Henter Id til inlogget bruker
-        var organizerId = User.FindFirst (
+        var organizerId = User.FindFirst(
             System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(organizerId))
-        { 
+        if (string.IsNullOrEmpty(organizerId))
+        {
             ModelState.AddModelError(
             string.Empty,
             "Du må være innlogget for å booke et rom");
-            
+
             return View(viewModel);
         }
 
@@ -138,46 +148,47 @@ public class RoomBookingController : Controller
             EndTime = viewModel.EndTime.Value,
             Course = viewModel.Course,
             Description = viewModel.Description ?? string.Empty,
-            OrganizerId = organizerId
+            OrganizerId = organizerId,
+            NumberOfParticipants = viewModel.NumberOfParticipants
         };
 
         // Lagring aktiveres når brukerkobling er klar
         try
-    {
-         await _roomBookingRepository.Create(booking);
-
-        //Logger først når bookingen er lagret.
-        _logger.LogInformation(
-        "Booking {BookingId} ble opprettet for rom {RoomId}.",
-        booking.Id, booking.RoomId);
-
-    return RedirectToAction("Index", "RoomLocation");
-}
-catch (Exception ex)
-{
-    // Beholder feildetaljene i loggen og viser en forståelig melding.
-    _logger.LogError(
-        ex,
-        "Feil ved oppretting av booking for rom {RoomId}.",
-        booking.RoomId);
-
-    ModelState.AddModelError(
-        string.Empty,
-        "Bookingen kunne ikke lagres. Vennligst prøv igjen.");
-
-    return View(viewModel);
-}
-    }
-        //Viser bookinger til innlogget bruker
-        [HttpGet]
-        public async Task<IActionResult> MyBookings()
-
         {
-            var organizerId = User.FindFirst (System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            await _roomBookingRepository.Create(booking);
 
-            //Henter ingen bookinger hvis bruker ikke er innlogget
-            if (User.Identity?.IsAuthenticated != true ||
-            string.IsNullOrEmpty(organizerId))
+            //Logger først når bookingen er lagret.
+            _logger.LogInformation(
+            "Booking {BookingId} ble opprettet for rom {RoomId}.",
+            booking.Id, booking.RoomId);
+
+            return RedirectToAction("Index", "RoomLocation");
+        }
+        catch (Exception ex)
+        {
+            // Beholder feildetaljene i loggen og viser en forståelig melding.
+            _logger.LogError(
+                ex,
+                "Feil ved oppretting av booking for rom {RoomId}.",
+                booking.RoomId);
+
+            ModelState.AddModelError(
+                string.Empty,
+                "Bookingen kunne ikke lagres. Vennligst prøv igjen.");
+
+            return View(viewModel);
+        }
+    }
+    //Viser bookinger til innlogget bruker
+    [HttpGet]
+    public async Task<IActionResult> MyBookings()
+
+    {
+        var organizerId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        //Henter ingen bookinger hvis bruker ikke er innlogget
+        if (User.Identity?.IsAuthenticated != true ||
+        string.IsNullOrEmpty(organizerId))
         {
             return Unauthorized("Du må være innlogget for å se dine bookinger");
         }
@@ -190,54 +201,56 @@ catch (Exception ex)
 
         var viewModels = bookings.Select(booking =>
         new RoomBookingListViewModel
-    {
-        BookingId= booking.Id,
-        RoomName = booking.Room.RoomName,
-        Building = booking.Room.Building, 
-        Course = booking.Course, 
-        StartTime = booking.StartTime,
-        EndTime = booking.EndTime
-    }).ToList();
+        {
+            BookingId = booking.Id,
+            RoomName = booking.Room.RoomName,
+            Building = booking.Room.Building,
+            Course = booking.Course,
+            StartTime = booking.StartTime,
+            EndTime = booking.EndTime,
+            NumberOfParticipants = booking.NumberOfParticipants
+        }).ToList();
 
         return View(viewModels);
 
-        }
-    
-        // GET: RoomBooking/Index
-        [HttpGet]
-        public async Task<IActionResult> Index()
-{
-    var bookings = await _roomBookingRepository.GetAllAsync();
-
-    var viewModels = new List<RoomBookingDetailsViewModel>();
-
-    foreach (var booking in bookings)
-    {
-        var room = await _roomRepository.GetRoomById(booking.RoomId);
-
-        viewModels.Add(new RoomBookingDetailsViewModel
-        {
-            Id = booking.Id,
-            RoomId = booking.RoomId,
-            RoomName = room?.RoomName ?? "Unknown room",
-            Course = booking.Course,
-            Description = booking.Description,
-            StartTime = booking.StartTime,
-            EndTime = booking.EndTime
-        });
     }
-    return View(viewModels);
-}
+
+    // GET: RoomBooking/Index
+    [HttpGet]
+    public async Task<IActionResult> Index()
+    {
+        var bookings = await _roomBookingRepository.GetAllAsync();
+
+        var viewModels = new List<RoomBookingDetailsViewModel>();
+
+        foreach (var booking in bookings)
+        {
+            var room = await _roomRepository.GetRoomById(booking.RoomId);
+
+            viewModels.Add(new RoomBookingDetailsViewModel
+            {
+                Id = booking.Id,
+                RoomId = booking.RoomId,
+                RoomName = room?.RoomName ?? "Unknown room",
+                Course = booking.Course,
+                Description = booking.Description,
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
+                NumberOfParticipants = booking.NumberOfParticipants
+            });
+        }
+        return View(viewModels);
+    }
 
     //Kansellere en booking
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Cancel(int bookingId)
     {
-        
-    //Hent Id til innlogget bruker
-    var organizerId = User.FindFirst(
-        System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        //Hent Id til innlogget bruker
+        var organizerId = User.FindFirst(
+            System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
         if (User.Identity?.IsAuthenticated != true ||
         string.IsNullOrEmpty(organizerId))
@@ -247,65 +260,66 @@ catch (Exception ex)
 
         var booking = await _roomBookingRepository.GetRoomBookingAsync(bookingId);
 
-    if (booking == null)
-            {
-                return NotFound();
-            }
-            //Bruker kan bare kansallere egne bookinger
-            if (booking.OrganizerId != organizerId)
-            {
-                return Forbid();
-            }
-            try
+        if (booking == null)
         {
-    await _roomBookingRepository.DeleteAsync(booking);
+            return NotFound();
+        }
+        //Bruker kan bare kansallere egne bookinger
+        if (booking.OrganizerId != organizerId)
+        {
+            return Forbid();
+        }
+        try
+        {
+            await _roomBookingRepository.DeleteAsync(booking);
 
-    // Logger først når bookingen er slettet.
-    _logger.LogInformation(
-        "Booking {BookingId} ble kansellert for rom {RoomId}.",
-        booking.Id, booking.RoomId);
-}
-catch (Exception ex)
-{
-    // Logger feilen og sender en melding til Mine bookinger.
-    _logger.LogError(
-        ex,
-        "Feil ved kansellering av booking {BookingId}.",
-        booking.Id);
+            // Logger først når bookingen er slettet.
+            _logger.LogInformation(
+                "Booking {BookingId} ble kansellert for rom {RoomId}.",
+                booking.Id, booking.RoomId);
+        }
+        catch (Exception ex)
+        {
+            // Logger feilen og sender en melding til Mine bookinger.
+            _logger.LogError(
+                ex,
+                "Feil ved kansellering av booking {BookingId}.",
+                booking.Id);
 
-    TempData["ErrorMessage"] =
-        "Bookingen kunne ikke kanselleres. Vennligst prøv igjen.";
-}
+            TempData["ErrorMessage"] =
+                "Bookingen kunne ikke kanselleres. Vennligst prøv igjen.";
+        }
 
-return RedirectToAction(nameof(MyBookings));
+        return RedirectToAction(nameof(MyBookings));
     }
 
-// GET: RoomBooking/Details/5
-[HttpGet]
-public async Task<IActionResult> Details(int id)
-{
-    var booking = await _roomBookingRepository.GetByIdAsync(id);
-
-    if (booking == null)
+    // GET: RoomBooking/Details/5
+    [HttpGet]
+    public async Task<IActionResult> Details(int id)
     {
-        return NotFound();
+        var booking = await _roomBookingRepository.GetByIdAsync(id);
+
+        if (booking == null)
+        {
+            return NotFound();
+        }
+
+        var room = await _roomRepository.GetRoomById(booking.RoomId);
+
+        var viewModel = new RoomBookingDetailsViewModel
+        {
+            Id = booking.Id,
+            RoomId = booking.RoomId,
+            RoomName = room?.RoomName ?? "Unknown room",
+            Course = booking.Course,
+            Description = booking.Description,
+            StartTime = booking.StartTime,
+            EndTime = booking.EndTime,
+            NumberOfParticipants = booking.NumberOfParticipants
+        };
+
+        return View(viewModel);
     }
-
-    var room = await _roomRepository.GetRoomById(booking.RoomId);
-
-    var viewModel = new RoomBookingDetailsViewModel
-    {
-        Id = booking.Id,
-        RoomId = booking.RoomId,
-        RoomName = room?.RoomName ?? "Unknown room",
-        Course = booking.Course,
-        Description = booking.Description,
-        StartTime = booking.StartTime,
-        EndTime = booking.EndTime
-    };
-
-    return View(viewModel);
-}
 
     // GET: RoomBooking/Edit/5
     [HttpGet]
@@ -328,7 +342,8 @@ public async Task<IActionResult> Details(int id)
             StartTime = booking.StartTime,
             EndTime = booking.EndTime,
             Course = booking.Course,
-            Description = booking.Description
+            Description = booking.Description,
+            NumberOfParticipants = booking.NumberOfParticipants
         };
 
         return View(viewModel);
@@ -356,6 +371,21 @@ public async Task<IActionResult> Details(int id)
 
         var room =
             await _roomRepository.GetRoomById(existingBooking.RoomId);
+
+        if (room == null)
+        {
+            return NotFound();
+        }
+
+        //Checking if number of participants exceeds room capacity
+        if (!room.Capacity.HasValue ||viewModel.NumberOfParticipants > room.Capacity.Value)
+        {
+            ModelState.AddModelError(
+                nameof(viewModel.NumberOfParticipants),
+                 "Amount of participants exceeds the rooms capacity"
+
+            );
+        }
 
         viewModel.RoomId = existingBooking.RoomId;
         viewModel.RoomName = room?.RoomName ?? "Unknown room";
@@ -405,36 +435,36 @@ public async Task<IActionResult> Details(int id)
         existingBooking.StartTime = viewModel.StartTime.Value;
         existingBooking.EndTime = viewModel.EndTime.Value;
         existingBooking.Course = viewModel.Course;
-        existingBooking.Description =
-            viewModel.Description ?? string.Empty;
+        existingBooking.Description = viewModel.Description ?? string.Empty;
+        existingBooking.NumberOfParticipants = viewModel.NumberOfParticipants;
 
-   try
-{
-    await _roomBookingRepository.UpdateAsync(existingBooking);
+        try
+        {
+            await _roomBookingRepository.UpdateAsync(existingBooking);
 
-    // Logger først når endringene er lagret.
-    _logger.LogInformation(
-        "Booking {BookingId} ble oppdatert for rom {RoomId}.",
-        existingBooking.Id, existingBooking.RoomId);
+            // Logger først når endringene er lagret.
+            _logger.LogInformation(
+                "Booking {BookingId} ble oppdatert for rom {RoomId}.",
+                existingBooking.Id, existingBooking.RoomId);
 
-    TempData["SuccessMessage"] = "Bookingen ble oppdatert.";
+            TempData["SuccessMessage"] = "Bookingen ble oppdatert.";
 
-    return RedirectToAction(nameof(Details), new { id });
-}
-catch (Exception ex)
-{
-    // Logger feildetaljene og lar brukeren beholde skjemaet.
-    _logger.LogError(
-        ex,
-        "Feil ved oppdatering av booking {BookingId}.",
-        existingBooking.Id);
+            return RedirectToAction(nameof(Details), new { id });
+        }
+        catch (Exception ex)
+        {
+            // Logger feildetaljene og lar brukeren beholde skjemaet.
+            _logger.LogError(
+                ex,
+                "Feil ved oppdatering av booking {BookingId}.",
+                existingBooking.Id);
 
-    ModelState.AddModelError(
-        string.Empty,
-        "Bookingen kunne ikke oppdateres. Vennligst prøv igjen.");
+            ModelState.AddModelError(
+                string.Empty,
+                "Bookingen kunne ikke oppdateres. Vennligst prøv igjen.");
 
-    return View(viewModel);
-}
+            return View(viewModel);
+        }
     }
 
     // GET: RoomBooking/Delete/5
@@ -463,7 +493,8 @@ catch (Exception ex)
             Course = booking.Course,
             Description = booking.Description,
             StartTime = booking.StartTime,
-            EndTime = booking.EndTime
+            EndTime = booking.EndTime,
+            NumberOfParticipants = booking.NumberOfParticipants
         };
 
         return View(viewModel);
@@ -480,34 +511,34 @@ catch (Exception ex)
             return BadRequest();
         }
 
-       try
-{
-    var deleted = await _roomBookingRepository.DeleteAsync(id);
+        try
+        {
+            var deleted = await _roomBookingRepository.DeleteAsync(id);
 
-    if (!deleted)
-    {
-        return NotFound();
+            if (!deleted)
+            {
+                return NotFound();
+            }
+
+            // Logger først når bookingen er slettet.
+            _logger.LogInformation(
+                "Booking {BookingId} ble slettet.",
+                id);
+
+            TempData["SuccessMessage"] = "Bookingen ble slettet.";
+        }
+        catch (Exception ex)
+        {
+            // Logger feildetaljene og viser en melding i bookingoversikten.
+            _logger.LogError(
+                ex,
+                "Feil ved sletting av booking {BookingId}.",
+                id);
+
+            TempData["ErrorMessage"] =
+                "Bookingen kunne ikke slettes. Vennligst prøv igjen.";
+        }
+
+        return RedirectToAction(nameof(Index));
     }
-
-    // Logger først når bookingen er slettet.
-    _logger.LogInformation(
-        "Booking {BookingId} ble slettet.",
-        id);
-
-    TempData["SuccessMessage"] = "Bookingen ble slettet.";
 }
-catch (Exception ex)
-{
-    // Logger feildetaljene og viser en melding i bookingoversikten.
-    _logger.LogError(
-        ex,
-        "Feil ved sletting av booking {BookingId}.",
-        id);
-
-    TempData["ErrorMessage"] =
-        "Bookingen kunne ikke slettes. Vennligst prøv igjen.";
-}
-
-return RedirectToAction(nameof(Index));
-         } 
-    }
