@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Opprett rombooking";
 }
-<h1 class="room-page-title">Book @Model.RoomName</h1>
+<h1 class="room-page-title">Book rom: @Model.RoomName</h1>
 
 <form asp-controller="RoomBooking" asp-action="Create" method="post" novalidate class="booking-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -27,7 +27,7 @@
 
       <div class="mb-3">
         <label asp-for="NumberOfParticipants" class="form-label">
-            Number of participants
+            Antall deltakere
         </label>
 
         <input asp-for="NumberOfParticipants"
