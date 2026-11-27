@@ -94,6 +94,8 @@ public class RoomBookingControllerTests
         var endTime = model.EndTime
         ?? throw new InvalidOperationException("Test setup requires an end time");
 
+        var numberOfParticipants = model.NumberOfParticipants;
+
         // Act
         var result = await _controller.Create(model);
 
@@ -110,7 +112,10 @@ public class RoomBookingControllerTests
                 booking.EndTime == endTime &&
                 booking.Course == model.Course &&
                 booking.Description == model.Description &&
-                booking.OrganizerId == "student-1"));
+                booking.OrganizerId == "student-1" &&
+                booking.NumberOfParticipants == model.NumberOfParticipants
+                
+            ));
     }
 
     // POSITIVE 3
@@ -128,7 +133,8 @@ public class RoomBookingControllerTests
                 RoomId = 1,
                 Course = "Web applications",
                 StartTime = start,
-                EndTime = start.AddHours(1)
+                EndTime = start.AddHours(1),
+                NumberOfParticipants = 4
             }
         };
 
@@ -152,6 +158,7 @@ public class RoomBookingControllerTests
         Assert.Equal("C146", booking.RoomName);
         Assert.Equal("Web applications", booking.Course);
         Assert.Equal(start, booking.StartTime);
+        Assert.Equal(4, booking.NumberOfParticipants);
     }
 
     // POSITIVE 4
@@ -168,7 +175,8 @@ public class RoomBookingControllerTests
             Course = "Programming",
             Description = "Group assignment",
             StartTime = start,
-            EndTime = start.AddHours(2)
+            EndTime = start.AddHours(2),
+            NumberOfParticipants = 4
         };
 
         _bookingRepository.GetByIdAsync(10)
@@ -192,6 +200,7 @@ public class RoomBookingControllerTests
         Assert.Equal("Group assignment", model.Description);
         Assert.Equal(start, model.StartTime);
         Assert.Equal(start.AddHours(2), model.EndTime);
+        Assert.Equal(4, model.NumberOfParticipants);
     }
 
     // POSITIVE 5
@@ -217,7 +226,8 @@ public class RoomBookingControllerTests
                 },
                 Course = "Programming",
                 StartTime = start,
-                EndTime = start.AddHours(1)
+                EndTime = start.AddHours(1),
+                NumberOfParticipants = 4
             }
         };
 
@@ -237,6 +247,7 @@ public class RoomBookingControllerTests
         Assert.Equal("C146", booking.RoomName);
         Assert.Equal("Karethe Johnsens hus", booking.Building);
         Assert.Equal("Programming", booking.Course);
+        Assert.Equal(4, booking.NumberOfParticipants);
 
         await _bookingRepository.Received(1)
             .GetByOrganizerIdAsync("student-1");
@@ -426,7 +437,8 @@ public async Task Create_WhenBookingOverlaps_ReturnsFormWithoutSaving()
         var room = new Room
         {
             RoomId = 1,
-            RoomName = "C146"
+            RoomName = "C146",
+            Capacity = 6
         };
 
         _roomRepository.GetRoomById(room.RoomId)
@@ -440,7 +452,8 @@ public async Task Create_WhenBookingOverlaps_ReturnsFormWithoutSaving()
             StartTime = start,
             EndTime = start.AddHours(1),
             Course = "Web applications",
-            Description = "Group assignment"
+            Description = "Group assignment",
+            NumberOfParticipants = 4
         };
     }
 
