@@ -4,8 +4,8 @@ namespace StudyRoomBooking.Mvc.Models;
 
 /*
 This class is the link that creates the Many-to-Many (N:M) relationship.
-Without this class, a user could not  sign up for multiple bookings,
-and a booking could not have multiple participants
+Without this class, a user could not sign up for multiple bookings,
+and a booking could not have multiple participants 
 */
 
 public class BookingParticipant
@@ -21,6 +21,9 @@ public class BookingParticipant
 
     public string UserId { get; set; } = string.Empty;
 
-    //ApplicationUser class is not finished ATM
     public ApplicationUser User { get; set; } = null!;
+
+    //Tells us how many participants will use the room
+    //Does not go above the room capasity (e.g Can't be 6 students in a 5 capacity room)
+    public int BookingParticipants { get; set; }
 }

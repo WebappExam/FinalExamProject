@@ -32,6 +32,9 @@
                 <dd class="col-sm-9">
                     @Model.EndTime.ToString("dd.MM.yyyy HH:mm")
                 </dd>
+
+                <dt class="col-sm-3">Amount of participants</dt>
+                <dd class="col-sm-9">@Model.NumberOfParticipants</dd>
             </dl>
 
             <form asp-action="Delete"

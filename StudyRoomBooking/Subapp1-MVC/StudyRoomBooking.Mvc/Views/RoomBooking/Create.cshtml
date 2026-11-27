@@ -25,6 +25,20 @@
         <span asp-validation-for="EndTime" class="text-danger"></span>
     </div>
 
+      <div class="mb-3">
+        <label asp-for="NumberOfParticipants" class="form-label">
+            Number of participants
+        </label>
+
+        <input asp-for="NumberOfParticipants"
+               type="number"
+               min="1"
+               class="form-control" />
+
+        <span asp-validation-for="NumberOfParticipants"
+              class="text-danger"></span>
+    </div>
+
     <div class="mb-3">
         <label asp-for="Course" class="form-label">Kursnavn (valgfritt)</label>
         <input asp-for="Course" class="form-control" />

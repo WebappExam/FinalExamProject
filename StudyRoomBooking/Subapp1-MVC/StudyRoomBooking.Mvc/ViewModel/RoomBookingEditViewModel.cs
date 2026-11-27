@@ -17,6 +17,9 @@ public class RoomBookingEditViewModel
     [Required(ErrorMessage = "Sluttidspunkt er påkrevd.")]
     public DateTime? EndTime { get; set; }
 
+    [Required(ErrorMessage="Number of participants must be specified")]
+    public int NumberOfParticipants { get; set; }
+
 
     [StringLength(30, ErrorMessage = "Kursnavn kan ikke være lengre enn 30 tegn.")]
     public string? Course { get; set; } 
