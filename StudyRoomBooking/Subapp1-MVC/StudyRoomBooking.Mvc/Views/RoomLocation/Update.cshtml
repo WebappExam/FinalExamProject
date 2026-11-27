@@ -3,8 +3,8 @@
     ViewData["Title"] = "Rediger rom";
 }
 
-<h1>Rediger rom</h1>
-<form asp-controller="RoomLocation" asp-action="Update" method="post">
+<h1 class="room-page-title">Rediger rom</h1>
+<form asp-controller="RoomLocation" asp-action="Update" method="post" class="booking-form">
     <div asp-validation-summary="ModelOnly" class="text-danger fw-bold"></div>
 
     @*Beholder kobling til valgt lokasjon*@
@@ -13,7 +13,7 @@
     @*Identifiser rom som skal oppdateres*@
     <input asp-for="RoomId" type="hidden" />
 
-<div class="mb-3">
+    <div class="mb-3">
         <label asp-for="RoomName" class="form-label">Romnavn</label>
         <input asp-for="RoomName" class="form-control" />
         <span asp-validation-for="RoomName" class="text-danger"></span>
@@ -21,8 +21,7 @@
 
     <div class="mb-3">
         <label asp-for="Capacity" class="form-label">Kapasitet</label>
-        <input asp-for="Capacity" type="number" 
-         class="form-control" />
+        <input asp-for="Capacity" type="number" class="form-control" />
         <span asp-validation-for="Capacity" class="text-danger fw-bold"></span>
     </div>
 
@@ -34,18 +33,21 @@
 
     @* Kobler romtypefeltet til ViewModelen og viser valideringsfeil. *@
     <div class="mb-3">
-    <label asp-for="RoomType" class="form-label">Romtype</label>
-    <input asp-for="RoomType" class="form-control" />
-    <span asp-validation-for="RoomType" class="text-danger fw-bold"></span>
+        <label asp-for="RoomType" class="form-label">Romtype</label>
+        <input asp-for="RoomType" class="form-control" />
+        <span asp-validation-for="RoomType" class="text-danger fw-bold"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Lagre endringer</button>
-    <a asp-controller="RoomLocation" 
-    asp-action="Rooms" 
-    asp-route-locationId="@Model.LocationId" 
-    class="btn btn-secondary">
-    Avbryt
-    </a>
+    <div class="booking-form-actions">
+        <button type="submit" class="btn room-search-button">
+            Lagre endringer
+        </button>
+
+        <a asp-controller="RoomLocation" asp-action="Rooms" asp-route-locationId="@Model.LocationId"
+           class="btn btn-outline-dark">
+            Avbryt
+        </a>
+    </div>
 </form>
 
 @section Scripts

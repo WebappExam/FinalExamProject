@@ -2,17 +2,66 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import BookingForm from './BookingForm';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import * as BookingService from './BookingService';
+import * as RoomService from '../RoomService';
 
 // Bruker det felles skjemaet til å redigere en booking.
-const BookingUpdatePage = ({ bookings, rooms, onBookingUpdated }) => {
+const BookingUpdatePage = () => {
   const navigate = useNavigate();
   const { bookingId } = useParams();
   const [submitting, setSubmitting] = useState(false);
 
-  // Finner bookingen som skal redigeres.
-  const booking = bookings.find(
-    item => item.Id === Number(bookingId)
-  );
+  const queryClient = useQueryClient();
+
+  // Henter alle rom fra databasen.
+  const {
+    data: rooms = [],
+    isLoading: roomsLoading,
+    error: roomsError
+  } = useQuery({
+    queryKey: ['rooms', 'all'],
+    queryFn: RoomService.fetchRooms,
+    select: data => data.map(room => ({
+      RoomId: room.roomId,
+      RoomName: room.roomName
+    }))
+  });
+
+  // Henter bookingen som skal redigeres fra API-et.
+  const {
+    data: booking,
+    isLoading,
+    error: fetchError
+  } = useQuery({
+    queryKey: ['bookings', bookingId],
+    queryFn: () => BookingService.fetchBookingById(bookingId),
+    enabled: !!bookingId,
+    select: data => ({
+      Id: data.id,
+      RoomId: data.roomId,
+      StartTime: data.startTime,
+      EndTime: data.endTime,
+      Course: data.course,
+      Description: data.description
+    })
+  });
+
+  // Oppdaterer bookingen gjennom API-et.
+  const updateMutation = useMutation({
+    mutationFn: BookingService.updateBooking,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+    }
+  });
+
+  if (isLoading || roomsLoading) {
+    return <p>Laster bookinginformasjon …</p>;
+  }
+
+  if (fetchError || roomsError) {
+    return <p className="text-danger">Kunne ikke hente bookinginformasjonen.</p>;
+  }
 
   // Viser melding dersom bookingen ikke finnes.
   if (!booking) {
@@ -24,7 +73,7 @@ const BookingUpdatePage = ({ bookings, rooms, onBookingUpdated }) => {
     setSubmitting(true);
 
     try {
-      await onBookingUpdated(updatedBooking);
+      await updateMutation.mutateAsync(updatedBooking);
       navigate('/bookings');
     } finally {
       setSubmitting(false);

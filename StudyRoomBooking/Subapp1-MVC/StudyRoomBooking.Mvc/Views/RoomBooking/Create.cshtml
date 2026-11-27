@@ -3,42 +3,41 @@
 @{
     ViewData["Title"] = "Opprett rombooking";
 }
-<h1>Book @Model.RoomName</h1>
+<h1 class="room-page-title">Book @Model.RoomName</h1>
 
-<form asp-controller="RoomBooking" asp-action="Create" method="post" novalidate>
+<form asp-controller="RoomBooking" asp-action="Create" method="post" novalidate class="booking-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     @*Identifiserer rom som skal bookes*@
     <input asp-for="RoomId" type="hidden" />
 
     <div class="mb-3">
-        <label asp-for="StartTime" class="form-label">Velg Startid:</label>
+        <label asp-for="StartTime" class="form-label">Velg startid:</label>
         <input asp-for="StartTime" asp-format="{0:yyyy-MM-ddTHH:mm}" type="datetime-local" step="60"
                class="form-control" />
         <span asp-validation-for="StartTime" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="EndTime" class="form-label">Sluttid</label>
+        <label asp-for="EndTime" class="form-label">Velg sluttid:</label>
         <input asp-for="EndTime" asp-format="{0:yyyy-MM-ddTHH:mm}" type="datetime-local" step="60"
                class="form-control" />
         <span asp-validation-for="EndTime" class="text-danger"></span>
     </div>
 
-    <div class="mb-3">
+      <div class="mb-3">
         <label asp-for="NumberOfParticipants" class="form-label">
             Number of participants
         </label>
 
-        <input asp-for="NumberOfParticipants" 
-            type="number", 
-            min="1",
-            class="form-control" />
+        <input asp-for="NumberOfParticipants"
+               type="number"
+               min="1"
+               class="form-control" />
 
         <span asp-validation-for="NumberOfParticipants"
-            class="text-danger"></span>
+              class="text-danger"></span>
     </div>
-
 
     <div class="mb-3">
         <label asp-for="Course" class="form-label">Kursnavn (valgfritt)</label>
@@ -48,23 +47,27 @@
 
     <div class="mb-3">
         <label asp-for="Description" class="form-label">Beskrivelse (obligatorisk)</label>
-            
+
         <textarea asp-for="Description" class="form-control"></textarea>
         <small class="text-muted">Maks 200 tegn</small>
         <span asp-validation-for="Description" class="text-danger fw-bold"></span>
     </div>
 
     @*Aktiveres når lagring av booking er klar*@
-    <button type="submit" class="btn btn-primary">Book rom
-    </button>
+    <div class="booking-form-actions">
 
-    <a asp-controller="RoomLocation" asp-action="Index" class="btn btn-secondary">
-        Tilbake til lokasjoner
-    </a>
+        <button type="submit" class="btn room-search-button">
+            Book rom
+        </button>
+
+        <a asp-controller="RoomLocation" asp-action="Index" class="btn btn-outline-dark">
+            Tilbake til lokasjoner
+        </a>
+    </div>
 </form>
+
 @section Scripts
 {
     @* Aktiverer klientvalidering for feltene i bookingskjemaet. *@
     <partial name="_ValidationScriptsPartial" />
 }
-

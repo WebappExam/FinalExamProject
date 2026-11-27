@@ -1,10 +1,22 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LocationForm from './LocationForm';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import * as LocationService from './LocationService';
 
 // Bruker det felles skjemaet til å opprette en lokasjon.
-  const LocationCreatePage = ({ onLocationCreated }) => {
+const LocationCreatePage = () => {
   const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: LocationService.createLocation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
+    }
+  });
+
   const [submitting, setSubmitting] = useState(false);
 
   // Sender lokasjonen videre og åpner oversikten etter lagring.
@@ -12,7 +24,7 @@ import LocationForm from './LocationForm';
     setSubmitting(true);
 
     try {
-      await onLocationCreated(location);
+      await createMutation.mutateAsync(location);
       navigate('/locations');
     } finally {
       setSubmitting(false);

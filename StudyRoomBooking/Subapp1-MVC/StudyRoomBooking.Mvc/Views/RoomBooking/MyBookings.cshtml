@@ -4,7 +4,7 @@
         ViewData ["Title"] = "Mine bookinger";
     }
 
-    <h1>Mine bookinger</h1>
+   <h1 class="room-page-title">Mine bookinger</h1>
 
     @* Viser eventuell feilmelding etter forsøk på kansellering. *@
 @if (TempData["ErrorMessage"] is string errorMessage)
@@ -21,13 +21,13 @@
     else
 {
     <div class = "table-responsive">
-        <table class = "table table-striped">
+        <table class="table table-striped table-hover room-results-table">
             <thead>
                 <tr>
                     <th>Rom</th>
                     <th>Bygg</th>
                     <th>Kursnavn</th>
-                    <th>Startid</th>
+                    <th>Starttid</th>
                     <th>Sluttid</th>
                     <th>Handling</th>
                     </tr>
@@ -48,7 +48,8 @@
                             asp-action="Cancel"
                             method="post">
                             <input type="hidden" name= "bookingId" value= "@booking.BookingId"/>
-                            <button type="submit" class "btn btn-danger btn-sm">
+                            <button type="submit"
+                                class="btn btn-outline-danger btn-sm"
                                 onclick="return confirm('Er du sikker på at du vil kansellere bookingen?');">
                                 Kanseller
                             </button>
@@ -62,6 +63,6 @@
     }
                 <a asp-controller = "RoomLocation"
             asp-action="="Index"
-        class "btn btn-secondary">
+        class="btn btn-outline-dark">
         Tilbake til lokasjoner
     </a>

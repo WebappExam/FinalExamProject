@@ -1,26 +1,26 @@
 @model List<StudyRoomBooking.Mvc.viewModel.LocationViewModel>
 
-
 @{
     ViewData["Title"] = "Velg lokasjon";
 }
 
-<div class="container mt-4">
+<div class="room-page">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1>Book et grupperom</h1>
+            <h1 class="room-page-title">Book et grupperom</h1>
             <p class="text-muted">
                 Velg hvor du ønsker å finne rom.
             </p>
         </div>
 
-        <!-- Location creation -->
-        <a asp-controller="RoomLocation"
-           asp-action="CreateLocation"
-           class="btn btn-success">
-            + Legg til lokasjon
-        </a>
+        @if (User.IsInRole("Admin"))
+        {
+            <!-- Location creation -->
+            <a asp-controller="RoomLocation" asp-action="CreateLocation" class="btn room-search-button">
+                + Legg til lokasjon
+            </a>
+        }
     </div>
 
     @if (TempData["SuccessMessage"] is string message)
@@ -42,8 +42,8 @@
             @foreach (var location in Model)
             {
                 <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
+                    <div class="card h-100 location-card"">
+                        <div class=" card-body">
 
                             <h2 class="h4">
                                 @location.LocationName
@@ -53,31 +53,28 @@
                                 Se tilgjengelige grupperom på denne lokasjonen.
                             </p>
 
-                            <div class="d-flex flex-wrap gap-2 mt-3">
+                            <div class="location-actions">
 
                                 <!-- Existing room navigation -->
-                                <a asp-controller="RoomLocation"
-                                   asp-action="Buildings"
-                                   asp-route-locationId="@location.LocationId"
-                                   class="btn btn-primary">
+                                <a asp-controller="RoomLocation" asp-action="Buildings" asp-route-locationId="@location.LocationId"
+                                   class="btn room-search-button">
                                     Se rom
                                 </a>
 
-                                <!-- Edit location -->
-                                <a asp-controller="RoomLocation"
-                                   asp-action="EditLocation"
-                                   asp-route-id="@location.LocationId"
-                                   class="btn btn-outline-secondary">
-                                    Rediger
-                                </a>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <!-- Edit location -->
+                                    <a asp-controller="RoomLocation" asp-action="EditLocation" asp-route-id="@location.LocationId"
+                                       class="btn btn-outline-dark">
+                                        Rediger
+                                    </a>
 
-                                <!-- Delete location -->
-                                <a asp-controller="RoomLocation"
-                                   asp-action="DeleteLocation"
-                                   asp-route-id="@location.LocationId"
-                                   class="btn btn-outline-danger">
-                                    Slett
-                                </a>
+                                    <!-- Delete location -->
+                                    <a asp-controller="RoomLocation" asp-action="DeleteLocation" asp-route-id="@location.LocationId"
+                                       class="btn btn-outline-danger">
+                                        Slett
+                                    </a>
+                                }
 
                             </div>
                         </div>

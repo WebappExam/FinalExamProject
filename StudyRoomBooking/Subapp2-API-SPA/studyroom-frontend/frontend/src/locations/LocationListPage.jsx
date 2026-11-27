@@ -1,10 +1,38 @@
 import { Table, Button, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import * as LocationService from './LocationService';
 
-// Viser lokasjonene fra den felles listen i App.
-const LocationListPage = ({ locations, onLocationDeleted }) => {
+// Henter lokasjonene fra API-et.
+const LocationListPage = () => {
+
   const [error, setError] = useState('');
+  const queryClient = useQueryClient();
+
+  // Henter oppdatert lokasjonsliste etter vellykket sletting.
+  const deleteMutation = useMutation({
+    mutationFn: LocationService.deleteLocation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
+    }
+  });
+
+  // Henter lokasjoner og holder oversikt over lasting og feil.
+  const {
+    data: locations = [],
+    isLoading,
+    error: fetchError
+  } = useQuery({
+    queryKey: ['locations'],
+    queryFn: LocationService.fetchLocations,
+
+    // Tilpasser API-feltene til navnene vi bruker i visningen.
+    select: data => data.map(location => ({
+      LocationId: location.locationId,
+      Name: location.name
+    }))
+  });
 
   // Ber om bekreftelse og viser en melding hvis sletting ikke tillates.
   const handleDelete = async (location) => {
@@ -19,7 +47,7 @@ const LocationListPage = ({ locations, onLocationDeleted }) => {
     }
 
     try {
-      await onLocationDeleted(location.LocationId);
+      await deleteMutation.mutateAsync(location.LocationId);
     } catch (err) {
       setError(
         err instanceof Error
@@ -28,6 +56,19 @@ const LocationListPage = ({ locations, onLocationDeleted }) => {
       );
     }
   };
+  // Viser melding mens lokasjonene hentes.
+  if (isLoading) {
+    return <p role="status">Laster lokasjoner …</p>;
+  }
+
+  // Viser feilmelding hvis API-kallet mislykkes.
+  if (fetchError) {
+    return (
+      <Alert variant="danger">
+        Kunne ikke hente lokasjonene. Kontroller at API-et kjører.
+      </Alert>
+    );
+  }
   return (
     <div className="text-start">
       <h1>Lokasjoner</h1>
@@ -76,6 +117,7 @@ const LocationListPage = ({ locations, onLocationDeleted }) => {
 
                   <Button
                     type="button"
+                    disabled={deleteMutation.isPending}
                     variant="danger"
                     size="sm"
                     className="ms-2"
