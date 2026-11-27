@@ -3,23 +3,25 @@ for details on configuring this project to bundle and minify static web assets. 
 
 /*--- header start ---*/
 .site-header {
-  background-color: rgb(255, 213, 0);
-  padding: 0.75rem 1rem;
+  background-color: #181818;
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
 }
 
 .site-header ::deep .site-header-brand {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
-  color: #000;
-  font-size: 1.25rem;
-  font-weight: 700;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .site-header ::deep .site-header-brand img {
   display: block;
   width: auto;
   height: 3.25rem;
+  filter: brightness(0) invert(1);
 }
 
 .site-header ::deep .navbar-nav {
@@ -28,17 +30,30 @@ for details on configuring this project to bundle and minify static web assets. 
 }
 
 .site-header ::deep .nav-link {
-  color: #000;
-  font-weight: 600;
+  color: #e5e5e5;
+  font-weight: 400;
+  margin: 0 0.2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid transparent;
+  font-size: 0.95rem;
+  white-space: nowrap;
 }
 
+.site-header ::deep .nav-link.active,
 .site-header ::deep .nav-link:hover,
 .site-header ::deep .nav-link:focus {
-  color: white;
+  color: #ffdc00;
+  border-bottom-color: #ffdc00;
 }
 
 .site-header ::deep .navbar-toggler {
-  border-color: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.site-header ::deep a:focus-visible,
+.site-header ::deep .navbar-toggler:focus-visible {
+  outline: 2px solid #ffdc00;
+  outline-offset: 4px;
 }
 
 /*--- footer start ---*/
@@ -66,16 +81,16 @@ for details on configuring this project to bundle and minify static web assets. 
 
 @media (max-width: 892px) {
   .flex-container {
-      flex-direction: column;
+    flex-direction: column;
   }
 }
 
-.flex-container h3{
+.flex-container h3 {
   font-size: 20px;
   font-weight: 700;
 }
 
-.flex-container a{
+.flex-container a {
   text-decoration: none;
   color: black;
   transition: all 0.1s ease;
@@ -95,11 +110,11 @@ for details on configuring this project to bundle and minify static web assets. 
 
 @media (max-width: 904px) {
   .nyhetsbrev-container {
-      justify-content: left;
+    justify-content: left;
   }
 }
 
-.nyhetsbrev-container a{
+.nyhetsbrev-container a {
   text-decoration: none;
 }
 
@@ -174,8 +189,10 @@ for details on configuring this project to bundle and minify static web assets. 
 
 /*socials class ikoner*/
 .socials img {
-  width: 2em; /* samme størrelse alle ikoner */
+  width: 2em;
+  /* samme størrelse alle ikoner */
   height: 2em;
-  margin-right: 0.5em; /* Space mellom link og ikoner */
+  margin-right: 0.5em;
+  /* Space mellom link og ikoner */
   vertical-align: middle;
 }

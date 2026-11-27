@@ -1,13 +1,19 @@
 html {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-} /*hele html har denne teksten som standard*/
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
 
+/* Felles bakgrunn og lettlest tekst på alle sider. */
 body {
   margin: 0;
+  background-color: #f5f5f3;
+  color: #181818;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 main {
-  padding-top: 7em;
+  padding-top: 1rem;
   width: 100%;
 }
 
@@ -21,7 +27,11 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
@@ -30,11 +40,335 @@ html {
   min-height: 100%;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+.form-floating>.form-control-plaintext::placeholder,
+.form-floating>.form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+.form-floating>.form-control-plaintext:focus::placeholder,
+.form-floating>.form-control:focus::placeholder {
   text-align: start;
+}
+
+/* Viser tekst og bilde ved siden av hverandre. */
+.home-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 3rem;
+  padding: 0.5rem 0 3rem;
+}
+
+.home-intro {
+  max-width: 680px;
+  text-align: left;
+  min-width: 0;
+}
+
+/* Stor overskrift som tilpasser seg skjermbredden. */
+.home-title {
+  margin: 0 0 1.5rem;
+  color: #181818;
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+
+.home-description {
+  max-width: 500px;
+  margin-bottom: 2rem;
+  color: #555555;
+  font-size: 1.15rem;
+  line-height: 1.7;
+}
+
+/* Gul hovedknapp med mørk tekst. */
+.home-search-button {
+  background-color: #ffdc00;
+  border: 1px solid #ffdc00;
+  color: #181818;
+  padding: 0.85rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.home-search-button:hover,
+.home-search-button:active {
+  background-color: #e6c600;
+  border-color: #e6c600;
+  color: #181818;
+}
+
+.home-search-button:focus-visible {
+  outline: 3px solid #181818;
+  outline-offset: 4px;
+}
+
+.home-image {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+/* Plasserer bildet under teksten på mindre skjermer. */
+@media (max-width: 767px) {
+  .home-hero {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .home-image {
+    height: 280px;
+  }
+}
+
+/* Gir oversikten luft og en tydelig overskrift. */
+.room-page {
+  padding: 1rem 0 3rem;
+}
+
+.room-page-title {
+  margin: 0 0 1rem;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 500;
+  color: #181818;
+}
+
+/* Gul hovedknapp med mørk tekst. */
+.room-search-button {
+  --bs-btn-color: #181818;
+  --bs-btn-bg: #ffdc00;
+  --bs-btn-border-color: #ffdc00;
+  --bs-btn-hover-color: #181818;
+  --bs-btn-hover-bg: #e6c600;
+  --bs-btn-hover-border-color: #e6c600;
+  --bs-btn-active-color: #181818;
+  --bs-btn-active-bg: #d4b800;
+  --bs-btn-active-border-color: #d4b800;
+  padding: 0.4rem 0.9rem;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.room-search-button:focus-visible {
+  outline: 3px solid #181818;
+  outline-offset: 3px;
+}
+
+/* Samler søkefeltene i et hvitt panel. */
+.room-search-panel {
+  background-color: #ffffff;
+  border: 1px solid #e2e2de;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin: 1rem 0 2rem;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 4%);
+}
+
+.room-search-panel .form-label {
+  font-weight: 500;
+  color: #181818;
+}
+
+.room-search-panel .form-control {
+  min-height: 46px;
+  border-radius: 8px;
+}
+
+/* Fordeler søkefeltene på to kolonner. */
+.room-search-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+}
+
+.room-search-fields > :first-child {
+  grid-column: 1 / -1;
+}
+
+/* Viser feltene under hverandre på mobil. */
+@media (max-width: 767px) {
+  .room-search-fields {
+    grid-template-columns: 1fr;
+  }
+}
+/* Hvite lokasjonskort og romkort med avrundede hjørner. */
+.location-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e2de;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 4%);
+}
+
+.location-card .card-body {
+  padding: 1.5rem;
+}
+
+.location-card h2 {
+  font-weight: 500;
+}
+
+/* Jevn avstand mellom handlingsknappene. */
+.location-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* Samme høyde og avrunding på knappene. */
+.location-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+/* Gir bookingoversikten luft og tydelige kolonneoverskrifter. */
+.room-results-table {
+  --bs-table-bg: #ffffff;
+  --bs-table-striped-bg: #f7f7f4;
+  --bs-table-hover-bg: #fff9d6;
+  --bs-table-color: #181818;
+  margin-bottom: 2rem;
+}
+
+.room-results-table > :not(caption) > * > * {
+  padding: 1rem;
+  vertical-align: middle;
+}
+
+.room-results-table thead th {
+  background-color: #181818;
+  color: #ffffff;
+  font-weight: 500;
+  border-bottom: 0;
+}
+
+.room-results-table .btn {
+  white-space: nowrap;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+}
+
+/* Hvitt panel rundt bookingskjemaet. */
+.booking-form {
+  max-width: 760px;
+  margin: 1.5rem 0 3rem;
+  padding: clamp(1rem, 3vw, 2rem);
+  background-color: #ffffff;
+  border: 1px solid #e2e2de;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 4%);
+}
+
+.booking-form .form-label {
+  color: #181818;
+  font-weight: 500;
+}
+
+.booking-form .form-control,
+.booking-form .form-select {
+  min-height: 46px;
+  border-radius: 8px;
+}
+
+/* Like store knapper med avstand mellom. */
+.booking-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.booking-form-actions .btn {
+  min-width: 160px;
+  min-height: 48px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Samme skjemadesign for innlogging og registrering. */
+#account,
+#registerForm
+ .identity-recovery form{
+  max-width: 760px;
+  background-color: #ffffff;
+  border: 1px solid #e2e2de;
+  border-radius: 16px;
+  padding: clamp(1rem, 3vw, 2rem);
+  margin: 1.5rem 0 3rem;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 4%);
+}
+
+#account .form-control,
+#registerForm .form-control,
+.identity-recovery .form-control {
+  border-radius: 8px;
+}
+
+/* Gule innloggings- og registreringsknapper. */
+#login-submit,
+#registerSubmit,
+.identity-recovery .btn-primary
+{
+  --bs-btn-color: #181818;
+  --bs-btn-bg: #ffdc00;
+  --bs-btn-border-color: #ffdc00;
+  --bs-btn-hover-color: #181818;
+  --bs-btn-hover-bg: #e6c600;
+  --bs-btn-hover-border-color: #e6c600;
+  --bs-btn-active-color: #181818;
+  --bs-btn-active-bg: #d4b800;
+  --bs-btn-active-border-color: #d4b800;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+/* Skjuler overskriften visuelt, men beholder den for skjermlesere. */
+main h1:has(+ .row #account) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Kompakte knapper for registrering og passordhjelp. */
+#account p > a {
+  display: block;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #181818;
+  border-radius: 6px;
+  color: #181818;
+  background-color: #ffffff;
+  text-decoration: none;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+#account p > a:hover {
+  background-color: #181818;
+  color: #ffffff;
+}
+
+#account p > a:focus-visible {
+  outline: 2px solid #181818;
+  outline-offset: 3px;
+}
+
+#account p {
+  margin-bottom: 0.75rem;
 }

@@ -1,16 +1,13 @@
-
 @model StudyRoomBooking.Mvc.viewModel.LocationFormViewModel
 
 @{
     ViewData["Title"] = "Ny lokasjon";
 }
+<div class="room-page">
+    <h1 class="room-page-title">Opprett lokasjon</h1>
 
-<div class="container mt-4">
-    <h1>Opprett lokasjon</h1>
-
-    <form asp-action="CreateLocation" method="post">
-        <div asp-validation-summary="ModelOnly"
-             class="text-danger"></div>
+    <form asp-action="CreateLocation" method="post" class="booking-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
         <div class="mb-3">
             <label asp-for="Name" class="form-label">
@@ -19,21 +16,21 @@
 
             <input asp-for="Name" class="form-control" />
 
-            <span asp-validation-for="Name"
-                  class="text-danger"></span>
+            <span asp-validation-for="Name" class="text-danger"></span>
         </div>
 
-        <button type="submit" class="btn btn-primary">
-            Opprett lokasjon
-        </button>
-
-        <a asp-action="Index" class="btn btn-secondary">
-            Avbryt
-        </a>
-    </form>
+        <div class="booking-form-actions">
+            <button type="submit" class="btn room-search-button">
+                Opprett lokasjon
+            </button>
+            <a asp-action="Index" class="btn btn-outline-dark">
+                Avbryt
+            </a>
+        </div>
+    </a>
+</form>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-
