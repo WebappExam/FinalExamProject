@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.Models;
 using StudyRoomBooking.Mvc.viewModel;
@@ -102,7 +103,7 @@ public class RoomBookingController : Controller
 
 
         //Checking if number of participants exceed the allowed capacity
-        if (!room.Capacity.HasValue ||viewModel.NumberOfParticipants > room.Capacity.Value)
+        if (!room.Capacity.HasValue || viewModel.NumberOfParticipants > room.Capacity.Value)
         {
             ModelState.AddModelError(
                 nameof(viewModel.NumberOfParticipants),
@@ -125,7 +126,13 @@ public class RoomBookingController : Controller
 
         if (hasOverlap)
         {
-            ModelState.AddModelError(string.Empty, "Det finnes allerede en booking for dette rommet i den valgte tidsperioden.");
+            //Logging error if booking conflict (2 people book the same room at the same data and time) occurs
+            _logger.LogWarning(
+                "Booking conflict detected from room {roomId}.",
+                viewModel.RoomId
+            );
+
+            ModelState.AddModelError(string.Empty, "There is already a booking for this room during the selected time period.");
             return View(viewModel);
         }
 
@@ -219,28 +226,44 @@ public class RoomBookingController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var bookings = await _roomBookingRepository.GetAllAsync();
-
-        var viewModels = new List<RoomBookingDetailsViewModel>();
-
-        foreach (var booking in bookings)
+        try
         {
-            var room = await _roomRepository.GetRoomById(booking.RoomId);
 
-            viewModels.Add(new RoomBookingDetailsViewModel
+            var bookings = await _roomBookingRepository.GetAllAsync();
+
+            var viewModels = new List<RoomBookingDetailsViewModel>();
+
+            foreach (var booking in bookings)
             {
-                Id = booking.Id,
-                RoomId = booking.RoomId,
-                RoomName = room?.RoomName ?? "Unknown room",
-                Course = booking.Course,
-                Description = booking.Description,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-                NumberOfParticipants = booking.NumberOfParticipants
-            });
+                var room = await _roomRepository.GetRoomById(booking.RoomId);
+
+                viewModels.Add(new RoomBookingDetailsViewModel
+                {
+                    Id = booking.Id,
+                    RoomId = booking.RoomId,
+                    RoomName = room?.RoomName ?? "Unknown room",
+                    Course = booking.Course,
+                    Description = booking.Description,
+                    StartTime = booking.StartTime,
+                    EndTime = booking.EndTime,
+                    NumberOfParticipants = booking.NumberOfParticipants
+                });
+            }
+
+            return View(viewModels);
         }
-        return View(viewModels);
+
+        catch(Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve bookings.");
+
+            Response.StatusCode = 500;
+
+            return View("~/Views/Shared/Error.cshtml");
+        }
+
     }
+
 
     //Kansellere en booking
     [HttpPost]
@@ -378,11 +401,18 @@ public class RoomBookingController : Controller
         }
 
         //Checking if number of participants exceeds room capacity
-        if (!room.Capacity.HasValue ||viewModel.NumberOfParticipants > room.Capacity.Value)
+        if (!room.Capacity.HasValue || viewModel.NumberOfParticipants > room.Capacity.Value)
         {
+            _logger.LogWarning(
+                "Invalid participant count {ParticipantCount} for room {RoomId}. Capacity: {Capacity}.",
+                viewModel.NumberOfParticipants,
+                room.RoomId,
+                room.Capacity
+            );
+
             ModelState.AddModelError(
                 nameof(viewModel.NumberOfParticipants),
-                 "Amount of participants exceeds the rooms capacity"
+                 "Invalid room capacity or too many participants"
 
             );
         }
