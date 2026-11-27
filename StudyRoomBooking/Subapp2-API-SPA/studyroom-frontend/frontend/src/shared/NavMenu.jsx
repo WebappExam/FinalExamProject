@@ -1,18 +1,82 @@
-import { Nav, Navbar } from 'react-bootstrap'; // Henter menykomponenter fra react-bootstrap
-import { Link, NavLink } from 'react-router-dom';
 
-const NavMenu = () => { // Lager komponenten NavMenu
+import { Nav, Navbar } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
+
+const NavMenu = () => {
+  const {
+    isAuthenticated,
+    email,
+    logout
+  } = useAuth();
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
-<Navbar expand="md" className="site-navbar" data-bs-theme="dark"> {/* Menyen tilpasser seg skjermstørrelsen */}
-      <Navbar.Brand as={Link} to="/">Study Room Booking</Navbar.Brand>
+    <Navbar expand="lg" className="px-3">
+      <Navbar.Brand as={Link} to="/">
+        Study Room Booking
+      </Navbar.Brand>
+
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
 
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="me-auto">
-          <Nav.Link as={NavLink} to="/">Hjem</Nav.Link>
-          <Nav.Link as={NavLink} to="/rooms">Rom</Nav.Link>
-          <Nav.Link as={NavLink} to="/bookings">Mine bookinger</Nav.Link>
-          <Nav.Link as={NavLink} to="/bookingcreate">Opprett booking</Nav.Link>
+          <Nav.Link as={Link} to="/">
+            Home
+          </Nav.Link>
+
+          <Nav.Link as={Link} to="/rooms">
+            Rooms
+          </Nav.Link>
+
+          <Nav.Link as={Link} to="/locations">
+            Locations
+          </Nav.Link>
+
+          {isAuthenticated && (
+            <>
+              <Nav.Link as={Link} to="/bookings">
+                My Bookings
+              </Nav.Link>
+
+              <Nav.Link as={Link} to="/bookingcreate">
+                Create Booking
+              </Nav.Link>
+            </>
+          )}
+        </Nav>
+
+        <Nav>
+          {isAuthenticated ? (
+            <>
+              <Navbar.Text className="me-3">
+                {email}
+              </Navbar.Text>
+
+              <button
+                className="btn btn-outline-danger"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Nav.Link as={Link} to="/login">
+                Login
+              </Nav.Link>
+
+              <Nav.Link as={Link} to="/register">
+                Register
+              </Nav.Link>
+            </>
+          )}
         </Nav>
       </Navbar.Collapse>
     </Navbar>

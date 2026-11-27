@@ -1,9 +1,9 @@
+
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.viewModel;
 using StudyRoomBooking.Mvc.Models;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
-using System.Linq.Expressions;
 
 namespace StudyRoomBooking.Mvc.Controllers;
 
@@ -11,12 +11,9 @@ public class RoomLocationController : Controller
 {
     private readonly ILocationRepository _locationRepository;
     private readonly IRoomRepository _roomRepository;
-
     private readonly IRoomBookingRepository _roomBookingRepository;
-
     private readonly ILogger<RoomLocationController> _logger;
 
-//Tar inn repository som skal brukes til å hente lokasjoner og rom fra databasen
     public RoomLocationController(
         ILocationRepository locationRepository,
         IRoomRepository roomRepository,
@@ -29,15 +26,16 @@ public class RoomLocationController : Controller
         _logger = logger;
     }
 
-    //Åpner skjema for å opprette et nytt rom på valgt 
- [HttpGet]
+    // GET: RoomLocation/Create
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
     public async Task<IActionResult> Create(int locationId)
     {
-        var location = await _locationRepository.GetWithRoomsAsync(locationId);
+        var location =
+            await _locationRepository.GetWithRoomsAsync(locationId);
+
         if (location == null)
-        {
             return NotFound("Lokasjonen finnes ikke.");
-        }
 
         var viewModel = new RoomCreateViewModel
         {
@@ -45,24 +43,28 @@ public class RoomLocationController : Controller
         };
 
         return View(viewModel);
-    } 
+    }
 
-    //Kontrollermetode som tar imot data fra skjemaet, og lagrer rom på valgt lokasjon 
+    // POST: RoomLocation/Create
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(RoomCreateViewModel viewModel)
+    public async Task<IActionResult> Create(
+        RoomCreateViewModel viewModel)
     {
         if (!ModelState.IsValid)
-        {
             return View(viewModel);
-        }
 
-        var location = await _locationRepository.GetWithRoomsAsync(viewModel.LocationId);
+        var location =
+            await _locationRepository.GetWithRoomsAsync(
+                viewModel.LocationId);
+
         if (location == null)
         {
             ModelState.AddModelError(
-                nameof(viewModel.LocationId), 
+                nameof(viewModel.LocationId),
                 "Lokasjonen finnes ikke.");
+
             return View(viewModel);
         }
 
@@ -75,103 +77,119 @@ public class RoomLocationController : Controller
             LocationId = viewModel.LocationId
         };
 
-        try 
-         {
-        await _roomRepository.Create(room);
+        try
+        {
+            await _roomRepository.Create(room);
 
-        //Logger at rom er lagret
-        _logger.LogInformation(
-            "Oprettet rom '{RoomId}' er lagret på lokasjon '{LocationId}'", 
-            room.RoomId, location.LocationId);
+            _logger.LogInformation(
+                "Room {RoomId} created at location {LocationId}.",
+                room.RoomId, location.LocationId);
 
-        return RedirectToAction("Rooms", new { locationId = viewModel.LocationId });
+            return RedirectToAction(
+                nameof(Rooms),
+                new { locationId = viewModel.LocationId });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Error creating room at location {LocationId}.",
+                location.LocationId);
+
+            ModelState.AddModelError(
+                string.Empty,
+                "En feil oppstod ved lagring av rommet. Vennligst prøv igjen.");
+
+            return View(viewModel);
+        }
     }
-    catch (Exception ex)
 
-    { //Logger feilmelding hvis lagring av rom feiler med melding i skjema
-        _logger.LogError(ex, 
-        "Feil ved lagring av rom '{RoomId}' på lokasjon '{LocationId}'", 
-            room.RoomId, location.LocationId);
-
-        ModelState.AddModelError(string.Empty, "En feil oppstod ved lagring av rommet. Vennligst prøv igjen.");
-        return View(viewModel);
-    }
- }
-
- [HttpGet]
+    // GET: RoomLocation/Update
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
     public async Task<IActionResult> Update(int roomId)
     {
-        var room = await _roomRepository.GetRoomById(roomId);
+        var room =
+            await _roomRepository.GetRoomById(roomId);
 
         if (room == null)
-        {
             return NotFound("Rommet finnes ikke.");
-        }
 
-    var viewModel = new RoomUpdateViewModel
+        var viewModel = new RoomUpdateViewModel
         {
-            RoomId= room.RoomId,
+            RoomId = room.RoomId,
             LocationId = room.LocationId,
             RoomName = room.RoomName,
             Capacity = room.Capacity,
             Building = room.Building,
             RoomType = room.RoomType
         };
+
         return View(viewModel);
     }
 
-[HttpPost]
+    // POST: RoomLocation/Update
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(RoomUpdateViewModel viewModel)
+    public async Task<IActionResult> Update(
+        RoomUpdateViewModel viewModel)
     {
         try
         {
-            var room = await _roomRepository.GetRoomById(viewModel.RoomId);
+            var room =
+                await _roomRepository.GetRoomById(viewModel.RoomId);
+
             if (room == null)
-            {
                 return NotFound("Rommet finnes ikke.");
-            }
-            viewModel.LocationId = room.LocationId; // Beholder lokasjonId for redirect
-            ModelState.Remove(nameof(viewModel.LocationId)); //Fjerner validering for LocationId, da den ikke skal endres
-            
+
+            viewModel.LocationId = room.LocationId;
+
+            ModelState.Remove(nameof(viewModel.LocationId));
+
             if (!ModelState.IsValid)
-            {
                 return View(viewModel);
-            }
 
             room.RoomName = viewModel.RoomName;
             room.Capacity = viewModel.Capacity;
             room.Building = viewModel.Building;
-            room.RoomType =viewModel.RoomType;
+            room.RoomType = viewModel.RoomType;
 
             await _roomRepository.Update(room);
+
             _logger.LogInformation(
-                "Rom '{RoomId}' er oppdatert på lokasjon '{LocationId}'", 
+                "Room {RoomId} updated at location {LocationId}.",
                 room.RoomId, room.LocationId);
 
-                return RedirectToAction("Rooms", new { locationId = room.LocationId });
+            return RedirectToAction(
+                nameof(Rooms),
+                new { locationId = room.LocationId });
         }
-
         catch (Exception ex)
         {
-            _logger.LogError(ex, 
-                "Feil ved oppdatering av rom '{RoomId}' på lokasjon '{LocationId}'", 
-                viewModel.RoomId, viewModel.LocationId);
+            _logger.LogError(
+                ex,
+                "Error updating room {RoomId}.",
+                viewModel.RoomId);
 
-            ModelState.AddModelError(string.Empty, "En feil oppstod ved oppdatering av rommet. Vennligst prøv igjen.");
+            ModelState.AddModelError(
+                string.Empty,
+                "En feil oppstod ved oppdatering av rommet. Vennligst prøv igjen.");
+
             return View(viewModel);
         }
     }
 
-    //Viser rom før bruker sletter
+    // GET: RoomLocation/Delete
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> Delete(int roomId)
     {
-        var room = await _roomRepository.GetRoomById(roomId);
+        var room =
+            await _roomRepository.GetRoomById(roomId);
+
         if (room == null)
-        {
             return NotFound("Rommet finnes ikke.");
-        }
 
         var viewModel = new RoomDeleteViewModel
         {
@@ -185,19 +203,19 @@ public class RoomLocationController : Controller
         return View(viewModel);
     }
 
-    //Tar imot skjema når bruker trykker slett
+    // POST: RoomLocation/Delete
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int roomId)
     {
-        var room = await _roomRepository.GetRoomById(roomId);
-        if (room == null)
-        {
-            return NotFound("Rommet finnes ikke.");
-        }
+        var room =
+            await _roomRepository.GetRoomById(roomId);
 
-        //Viser opplysninger hvis siden må lastes på nytt pga feil
+        if (room == null)
+            return NotFound("Rommet finnes ikke.");
+
         var viewModel = new RoomDeleteViewModel
         {
             RoomId = room.RoomId,
@@ -209,138 +227,139 @@ public class RoomLocationController : Controller
 
         try
         {
-            //Sletter bare hvis ingen bookinger finnes for rommet, ellers vises feilmelding
-            var deleted = await _roomRepository.Delete(roomId);
+            var deleted =
+                await _roomRepository.Delete(roomId);
+
             if (!deleted)
             {
-                ModelState.AddModelError(string.Empty, "Rommet kan ikke slettes fordi det finnes bookinger for dette rommet.");
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Rommet kan ikke slettes fordi det finnes bookinger for dette rommet.");
+
                 return View(viewModel);
             }
-        
-        //Logger at rom er slettet
-        _logger.LogInformation(
-            "Rom '{RoomId}' er slettet fra lokasjon '{LocationId}'", 
-            room.RoomId, room.LocationId);
-            return RedirectToAction("Rooms", new { locationId = room.LocationId 
-            });
-        }
 
-            catch (Exception ex)
-        {
-            //Logger feilmelding hvis sletting av rom feiler med melding i skjema
-            _logger.LogError(ex, 
-                "Feil ved sletting av rom '{RoomId}' på lokasjon '{LocationId}'", 
+            _logger.LogInformation(
+                "Room {RoomId} deleted from location {LocationId}.",
                 room.RoomId, room.LocationId);
 
-            ModelState.AddModelError(string.Empty, "En feil oppstod ved sletting av rommet. Vennligst prøv igjen.");
+            return RedirectToAction(
+                nameof(Rooms),
+                new { locationId = room.LocationId });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Error deleting room {RoomId}.",
+                room.RoomId);
+
+            ModelState.AddModelError(
+                string.Empty,
+                "En feil oppstod ved sletting av rommet. Vennligst prøv igjen.");
+
             return View(viewModel);
         }
-
     }
 
-    // Viser lokasjonene på startsiden.
+    // GET: RoomLocation/Index
+    // Students and administrators can browse locations.
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var locations = await _locationRepository.GetAllAsync();
+        var locations =
+            await _locationRepository.GetAllAsync();
 
-        var viewModels = locations.Select(location => new LocationViewModel
-        {
-            LocationId = location.LocationId,
-            LocationName = location.Name
-        }).ToList();
+        var viewModels = locations.Select(location =>
+            new LocationViewModel
+            {
+                LocationId = location.LocationId,
+                LocationName = location.Name
+            }).ToList();
 
         return View(viewModels);
     }
 
-    // Viser rommene på lokasjonen brukeren valgte + søketekst som skal vises i søkefeltet
+    // GET: RoomLocation/Rooms
+    // Public browsing and availability search.
+    [HttpGet]
     public async Task<IActionResult> Rooms(
-        int locationId, 
-        string ? searchQuery,
-        string ? building, 
+        int locationId,
+        string? searchQuery,
+        string? building,
         int? minCapacity,
         DateTime? startTime,
-        DateTime? endTime, 
+        DateTime? endTime,
         bool onlyAvailable = false)
     {
-        var location = await _locationRepository
-            .GetWithRoomsAsync(locationId);
+        var location =
+            await _locationRepository.GetWithRoomsAsync(locationId);
 
         if (location == null)
-        {
             return NotFound("Lokasjonen finnes ikke.");
-        }
-
 
         if (onlyAvailable)
         {
-             if (!startTime.HasValue || !endTime.HasValue)
-             {
-
-            ModelState.AddModelError( 
-                string.Empty,
-                "Velg både starttidspunkt og slutttidspunkt for å søke etter ledige rom");
-                }
-             
-                else if (startTime.Value >= endTime.Value)
-                {
-                    
-                ModelState.AddModelError( 
-                string.Empty,
-                "Starttidspunkt må være før slutttidspunkt. Vennligst prøv igjen og skriv inn gyldig tidspunkt.");
-                }
+            if (!startTime.HasValue || !endTime.HasValue)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Velg både starttidspunkt og sluttidspunkt for å søke etter ledige rom.");
             }
-    
-    //Filtrerer rommene basert på lokasjon,etter navn uavhening av store og små bokstaver, og fjerner eventuelle mellomrom i søketeksten
-    var rooms = location.Rooms.AsEnumerable();
-    if (!string.IsNullOrWhiteSpace(searchQuery))
-    {
-        rooms = rooms.Where(room => 
-        room.RoomName.ToLower().Contains(searchQuery.Trim().ToLower()));
-    }
-
-    //Filtrerer videre på bygg hvis bruker har skrevet inn i søkefeltet
-    if (!string.IsNullOrWhiteSpace(building))
-
-    {
-        rooms = rooms.Where(room => string.Equals(
-        room.Building.Trim(),
-        building.Trim(),
-        StringComparison.OrdinalIgnoreCase));
-    }
-
-    //Filtrerer videre på min kapasitet hvis bruker har skrevet inn i søkefeltet
-
-    if (minCapacity.HasValue)
-        {
-            rooms =rooms.Where(room =>
-            room.Capacity >= minCapacity.Value);
+            else if (startTime.Value >= endTime.Value)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Starttidspunkt må være før sluttidspunkt.");
+            }
         }
 
-    var occupiedRoomIds = new HashSet<int>();
+        var rooms = location.Rooms.AsEnumerable();
 
-    if (startTime.HasValue &&
-    endTime.HasValue &&
-    startTime.Value < endTime.Value)
-{
-    var occupiedIds = await _roomBookingRepository
-        .GetOccupiedRoomIdAsync(
-            locationId,
-            startTime.Value,
-            endTime.Value);
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            rooms = rooms.Where(room =>
+                room.RoomName.Contains(
+                    searchQuery.Trim(),
+                    StringComparison.OrdinalIgnoreCase));
+        }
 
-    occupiedRoomIds = occupiedIds.ToHashSet();
+        if (!string.IsNullOrWhiteSpace(building))
+        {
+            rooms = rooms.Where(room =>
+                string.Equals(
+                    room.Building.Trim(),
+                    building.Trim(),
+                    StringComparison.OrdinalIgnoreCase));
+        }
 
-    if (onlyAvailable &&
-    startTime.HasValue &&
-    endTime.HasValue &&
-    startTime.Value <endTime.Value)
+        if (minCapacity.HasValue)
+        {
+            rooms = rooms.Where(room =>
+                room.Capacity >= minCapacity.Value);
+        }
+
+        var occupiedRoomIds = new HashSet<int>();
+
+        if (startTime.HasValue &&
+            endTime.HasValue &&
+            startTime.Value < endTime.Value)
+        {
+            var occupiedIds =
+                await _roomBookingRepository.GetOccupiedRoomIdAsync(
+                    locationId,
+                    startTime.Value,
+                    endTime.Value);
+
+            occupiedRoomIds = occupiedIds.ToHashSet();
+
+            if (onlyAvailable)
             {
-                rooms= rooms.Where(room =>
-                !occupiedRoomIds.Contains(room.RoomId));
+                rooms = rooms.Where(room =>
+                    !occupiedRoomIds.Contains(room.RoomId));
             }
-}
+        }
 
-    //Sender søketekst og filtrert romliste til viewmodel som skal vises i viewet
         var viewModel = new LocationViewModel
         {
             LocationId = location.LocationId,
@@ -359,8 +378,9 @@ public class RoomLocationController : Controller
 
         return View(viewModel);
     }
-    
+
     // GET: RoomLocation/CreateLocation
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public IActionResult CreateLocation()
     {
@@ -368,6 +388,7 @@ public class RoomLocationController : Controller
     }
 
     // POST: RoomLocation/CreateLocation
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateLocation(
@@ -389,12 +410,15 @@ public class RoomLocationController : Controller
 
         try
         {
-            var location = new Location { Name = name };
+            var location = new Location
+            {
+                Name = name
+            };
 
             await _locationRepository.CreateAsync(location);
 
             _logger.LogInformation(
-                "Lokasjon {LocationId} ble opprettet",
+                "Location {LocationId} created.",
                 location.LocationId);
 
             TempData["SuccessMessage"] =
@@ -404,8 +428,9 @@ public class RoomLocationController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
-                "Feil ved opprettelse av lokasjon");
+            _logger.LogError(
+                ex,
+                "Error creating location.");
 
             ModelState.AddModelError(
                 string.Empty,
@@ -416,10 +441,12 @@ public class RoomLocationController : Controller
     }
 
     // GET: RoomLocation/EditLocation/5
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> EditLocation(int id)
     {
-        var location = await _locationRepository.GetByIdAsync(id);
+        var location =
+            await _locationRepository.GetByIdAsync(id);
 
         if (location == null)
             return NotFound();
@@ -432,6 +459,7 @@ public class RoomLocationController : Controller
     }
 
     // POST: RoomLocation/EditLocation/5
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditLocation(
@@ -441,7 +469,8 @@ public class RoomLocationController : Controller
         if (id != viewModel.LocationId)
             return BadRequest();
 
-        var location = await _locationRepository.GetByIdAsync(id);
+        var location =
+            await _locationRepository.GetByIdAsync(id);
 
         if (location == null)
             return NotFound();
@@ -467,7 +496,8 @@ public class RoomLocationController : Controller
             await _locationRepository.UpdateAsync(location);
 
             _logger.LogInformation(
-                "Lokasjon {LocationId} ble oppdatert", id);
+                "Location {LocationId} updated.",
+                id);
 
             TempData["SuccessMessage"] =
                 "Lokasjonen ble oppdatert.";
@@ -476,8 +506,10 @@ public class RoomLocationController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
-                "Feil ved oppdatering av lokasjon {LocationId}", id);
+            _logger.LogError(
+                ex,
+                "Error updating location {LocationId}.",
+                id);
 
             ModelState.AddModelError(
                 string.Empty,
@@ -488,6 +520,7 @@ public class RoomLocationController : Controller
     }
 
     // GET: RoomLocation/DeleteLocation/5
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> DeleteLocation(int id)
     {
@@ -501,6 +534,7 @@ public class RoomLocationController : Controller
     }
 
     // POST: RoomLocation/DeleteLocation/5
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ActionName("DeleteLocation")]
     [ValidateAntiForgeryToken]
@@ -523,7 +557,8 @@ public class RoomLocationController : Controller
 
         try
         {
-            bool deleted = await _locationRepository.DeleteAsync(id);
+            bool deleted =
+                await _locationRepository.DeleteAsync(id);
 
             if (!deleted)
             {
@@ -535,7 +570,8 @@ public class RoomLocationController : Controller
             }
 
             _logger.LogInformation(
-                "Lokasjon {LocationId} ble slettet", id);
+                "Location {LocationId} deleted.",
+                id);
 
             TempData["SuccessMessage"] =
                 "Lokasjonen ble slettet.";
@@ -544,8 +580,10 @@ public class RoomLocationController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
-                "Feil ved sletting av lokasjon {LocationId}", id);
+            _logger.LogError(
+                ex,
+                "Error deleting location {LocationId}.",
+                id);
 
             ModelState.AddModelError(
                 string.Empty,
@@ -553,39 +591,37 @@ public class RoomLocationController : Controller
 
             return View("DeleteLocation", location);
         }
-     }
+    }
 
-     // This is for the new setup for Pilestredet
-     [HttpGet]
-     public async Task<IActionResult> Buildings(int locationId)
+    // GET: RoomLocation/Buildings
+    [HttpGet]
+    public async Task<IActionResult> Buildings(int locationId)
     {
-        var location = await _locationRepository.GetWithRoomsAsync(locationId);
+        var location =
+            await _locationRepository.GetWithRoomsAsync(locationId);
 
         if (location == null)
-        {
             return NotFound();
-        }
-
 
         var buildings = location.Rooms
-        .Select(room => room.Building.Trim())
-        .Where(building => building.Length > 0)
-        .Distinct(StringComparer.OrdinalIgnoreCase)
-        .OrderBy(building => building)
-        .ToList();
+            .Select(room => room.Building.Trim())
+            .Where(building => building.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(building => building)
+            .ToList();
 
         if (buildings.Count <= 1)
         {
-            return RedirectToAction(nameof(Rooms), new { locationId });
+            return RedirectToAction(
+                nameof(Rooms),
+                new { locationId });
         }
 
-        return View (new LocationBuildingsViewModel
+        return View(new LocationBuildingsViewModel
         {
             LocationId = location.LocationId,
             LocationName = location.Name,
             Buildings = buildings
-
         });
     }
-
 }

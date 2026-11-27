@@ -1,3 +1,6 @@
+import LoginPage from './auth/LoginPage';
+import RegisterPage from './auth/RegisterPage';
+import ProtectedRoute from './auth/ProtectedRoute';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import RoomCreatePage from './rooms/RoomCreatePage'
 import RoomUpdatePage from './rooms/RoomUpdatePage'
@@ -76,6 +79,9 @@ function App() {
               path="*"
               element={<Navigate to="/" replace />}
             />
+            <Route path="/login" element={<LoginPage />} />
+
+            <Route path="/register" element={<RegisterPage />} />
           </Routes>
         </Container>
       </Router>

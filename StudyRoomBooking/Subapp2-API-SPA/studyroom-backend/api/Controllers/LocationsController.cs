@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using StudyRoomBooking.Mvc.DAL;
 using StudyRoomBooking.Mvc.DTOs;
 using StudyRoomBooking.Mvc.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StudyRoomBooking.Mvc.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/locations")]
 public class LocationsController(
@@ -12,6 +14,7 @@ public class LocationsController(
     ILogger<LocationsController> logger) : ControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     public async Task<ActionResult<List<LocationDto>>> GetLocations()
     {
         var locations = await locationRepository.GetAllAsync();
@@ -19,6 +22,7 @@ public class LocationsController(
     }
 
     [HttpGet("{locationId:int}")]
+    [AllowAnonymous]
     public async Task<ActionResult<LocationDto>> GetLocation(int locationId)
     {
         var location = await locationRepository.GetByIdAsync(locationId);
@@ -26,6 +30,7 @@ public class LocationsController(
     }
 
     [HttpGet("{locationId:int}/rooms")]
+    [AllowAnonymous]
     public async Task<ActionResult<LocationWithRoomsDto>> GetLocationRooms(int locationId)
     {
         var location = await locationRepository.GetWithRoomsAsync(locationId);
