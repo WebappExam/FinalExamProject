@@ -57,12 +57,12 @@ const LocationForm = ({
           maxLength={50}
           onInvalid={e => {
             if (e.target.validity.valueMissing) {
-              e.target.setCustomValidity('Vennligst skriv inn lokasjonsnavn.');
+              e.target.setCustomValidity('Vennligst skriv inn lokasjonsnavn.'); //Tilpasse nettlesers meldinger til norsk.
             } else {
-              e.target.setCustomValidity('Lokasjonsnavn må ha mellom 2 og 50 tegn.');
+              e.target.setCustomValidity('Lokasjonsnavn må ha mellom 2 og 50 tegn.'); //Tilpasse nettlesers meldinger til norsk.
             }
           }}
-          onInput={e => e.target.setCustomValidity('')}
+          onInput={e => e.target.setCustomValidity('')} //Feilmelding blir nullstilt når bruker prøver igjen
         />
       </Form.Group>
 

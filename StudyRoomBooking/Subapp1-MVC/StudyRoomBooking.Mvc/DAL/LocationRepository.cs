@@ -86,7 +86,7 @@ public class LocationRepository : ILocationRepository
         string name,
         int? excludeLocationId = null)
     {
-        var normalizedName = name.Trim().ToLower();
+        var normalizedName = name.Trim().ToLower(); //Remove space in beginning and of text and convert to small letters, normalized name stores results
 
         return await _db.Locations.AnyAsync(location =>
             location.Name.ToLower() == normalizedName &&

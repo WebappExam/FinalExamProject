@@ -39,7 +39,7 @@ public class RoomBookingController : Controller
         if (room == null)
             return NotFound("The selected room does not exist.");
 
-        var now = DateTime.Now;
+        var now = DateTime.Now.AddMinutes(15);
 
         var startTime = new DateTime(
             now.Year, now.Month, now.Day,
