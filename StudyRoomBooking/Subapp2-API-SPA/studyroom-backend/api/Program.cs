@@ -35,7 +35,7 @@ builder.Services.AddCors(options => // CORS Policy for React Frontend Integratio
 });
 
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
-builder.Services.AddScoped<IRoomRepository, RoomRepository>(); //lagt til room repository
+builder.Services.AddScoped<IRoomRepository, RoomRepository>(); 
 builder.Services.AddScoped<IRoomBookingRepository, RoomBookingRepository>();
 
 var loggerConfiguration = new LoggerConfiguration()
