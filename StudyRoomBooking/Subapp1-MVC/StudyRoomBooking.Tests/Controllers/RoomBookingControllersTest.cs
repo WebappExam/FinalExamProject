@@ -167,16 +167,18 @@ public class RoomBookingControllerTests
     {
         // Arrange
         var start = DateTime.Now.AddDays(1);
+        SetLoggedInUser("Student-1");
 
         var booking = new RoomBooking
         {
             Id = 10,
             RoomId = 1,
+            OrganizerId = "Student-1",
             Course = "Programming",
             Description = "Group assignment",
             StartTime = start,
             EndTime = start.AddHours(2),
-            NumberOfParticipants = 4
+            NumberOfParticipants = 4,
         };
 
         _bookingRepository.GetByIdAsync(10)
@@ -384,19 +386,17 @@ public async Task Create_WhenBookingOverlaps_ReturnsFormWithoutSaving()
 
     // NEGATIVE 5
     [Fact]
-    public async Task Create_WhenUserIsAnonymous_ReturnsFormWithoutSaving()
+    public async Task Create_WhenUserIsAnonymous_ReturnsUnauthorizedWithoutSaving()
     {
         // Arrange
         var model = ArrangeValidBookingForm();
         // The constructor provides an anonymous user.
 
-        // Act
+        // Act 
         var result = await _controller.Create(model);
 
         // Assert
-        var view = Assert.IsType<ViewResult>(result);
-        Assert.Same(model, view.Model);
-        Assert.False(_controller.ModelState.IsValid);
+        var view = Assert.IsType<UnauthorizedResult>(result);
 
         await _bookingRepository.DidNotReceive()
             .Create(Arg.Any<RoomBooking>());
