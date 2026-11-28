@@ -45,28 +45,6 @@ var loggerConfiguration = new LoggerConfiguration()
 var logger = loggerConfiguration.CreateLogger();
 builder.Logging.AddSerilog(logger);
 
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await db.Database.MigrateAsync();
-    await DbInitializer.SeedAsync(db);
-var roleManager = scope.ServiceProvider
-    .GetRequiredService<RoleManager<IdentityRole>>();
-
-foreach (var role in new[] { "User", "Admin" })
-{
-    if (!await roleManager.RoleExistsAsync(role))
-    {
-        await roleManager.CreateAsync(
-            new IdentityRole(role));
-    }
-}
-    app.MapOpenApi(); // Serve modern OpenAPI document endpoint (/openapi/v1.json)
-    app.MapScalarApiReference(); // Serve Scalar Interactive API Documentation UI (/scalar/v1)
-}
 // Identity configuration
 builder.Services
     .AddIdentityCore<ApplicationUser>(options =>
@@ -125,6 +103,30 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
+    await DbInitializer.SeedAsync(db);
+
+    var roleManager = scope.ServiceProvider
+        .GetRequiredService<RoleManager<IdentityRole>>();
+
+    foreach (var role in new[] { "User", "Admin" })
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+
+    app.MapOpenApi(); // Serve modern OpenAPI document endpoint (/openapi/v1.json)
+    app.MapScalarApiReference(); // Serve Scalar Interactive API Documentation UI (/scalar/v1)
+}
 
 app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
