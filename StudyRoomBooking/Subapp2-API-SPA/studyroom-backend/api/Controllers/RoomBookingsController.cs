@@ -27,7 +27,10 @@ public class RoomBookingsController(
         var booking = await bookingRepository.GetByIdAsync(bookingId);
         if (booking is null)
         {
-            return NotFound(new { message = "Booking not found." });
+            return Problem(
+                title: "Booking not found",
+                detail: $"Booking with ID {bookingId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
         }
 
         return Ok(ToDto(booking));
@@ -42,10 +45,10 @@ public class RoomBookingsController(
         {
             return BadRequest(new ValidationProblemDetails(
                 new Dictionary<string, string[]>
-            {
-                [nameof(request.OrganizerId)] =
-                    ["A valid OrganizerId is required."]
-            })
+                {
+                    [nameof(request.OrganizerId)] =
+                        ["A valid OrganizerId is required."]
+                })
             {
                 Status = StatusCodes.Status400BadRequest,
                 Title = "One or more validation errors occurred."
@@ -57,9 +60,10 @@ public class RoomBookingsController(
         {
             return BadRequest(new ValidationProblemDetails(
                 new Dictionary<string, string[]>
-            {
-                [nameof(request.RoomId)] = ["The specified room does not exist."]
-            })
+                {
+                    [nameof(request.RoomId)] =
+                        ["The specified room does not exist."]
+                })
             {
                 Status = StatusCodes.Status400BadRequest,
                 Title = "One or more validation errors occurred."
@@ -71,12 +75,10 @@ public class RoomBookingsController(
                 request.StartTime!.Value,
                 request.EndTime!.Value))
         {
-            return Conflict(new ProblemDetails
-            {
-                Title = "Booking conflict",
-                Detail = "The room is already booked during this time.",
-                Status = StatusCodes.Status409Conflict
-            });
+            return Problem(
+                title: "Booking conflict",
+                detail: "The room is already booked during this time.",
+                statusCode: StatusCodes.Status409Conflict);
         }
 
         var booking = new RoomBooking
@@ -105,7 +107,10 @@ public class RoomBookingsController(
         var booking = await bookingRepository.GetByIdAsync(bookingId);
         if (booking is null)
         {
-            return NotFound(new { message = "Booking not found." });
+            return Problem(
+                title: "Booking not found",
+                detail: $"Booking with ID {bookingId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
         }
 
         var room = await roomRepository.GetRoomById(request.RoomId);
@@ -113,9 +118,10 @@ public class RoomBookingsController(
         {
             return BadRequest(new ValidationProblemDetails(
                 new Dictionary<string, string[]>
-            {
-                [nameof(request.RoomId)] = ["The specified room does not exist."]
-            })
+                {
+                    [nameof(request.RoomId)] =
+                        ["The specified room does not exist."]
+                })
             {
                 Status = StatusCodes.Status400BadRequest,
                 Title = "One or more validation errors occurred."
@@ -128,12 +134,10 @@ public class RoomBookingsController(
                 request.EndTime!.Value,
                 bookingId))
         {
-            return Conflict(new ProblemDetails
-            {
-                Title = "Booking conflict",
-                Detail = "The room is already booked during this time.",
-                Status = StatusCodes.Status409Conflict
-            });
+            return Problem(
+                title: "Booking conflict",
+                detail: "The room is already booked during this time.",
+                statusCode: StatusCodes.Status409Conflict);
         }
 
         booking.StartTime = request.StartTime.Value;
@@ -151,9 +155,15 @@ public class RoomBookingsController(
     public async Task<IActionResult> DeleteBooking(int bookingId)
     {
         var deleted = await bookingRepository.DeleteAsync(bookingId);
-        return deleted
-            ? NoContent()
-            : NotFound(new { message = "Booking not found." });
+        if (!deleted)
+        {
+            return Problem(
+                title: "Booking not found",
+                detail: $"Booking with ID {bookingId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
+        }
+
+        return NoContent();
     }
 
     private static RoomBookingDto ToDto(RoomBooking booking) => new()
