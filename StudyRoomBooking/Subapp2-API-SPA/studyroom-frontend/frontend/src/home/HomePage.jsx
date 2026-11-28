@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import roomImage from '../assets/rom.jpg';
+import roomImage from '../assets/Gruppe.jpg';
 
 const HomePage = () => {
   return (
