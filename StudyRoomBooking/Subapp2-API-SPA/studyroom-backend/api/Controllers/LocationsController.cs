@@ -110,4 +110,5 @@ public class LocationsController(
         LocationId = location.LocationId,
         Name = location.Name
     };
+
 }
