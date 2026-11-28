@@ -15,6 +15,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Container from 'react-bootstrap/Container'
 import HomePage from './home/HomePage'
 import NavMenu from './shared/NavMenu'
+import Footer from './shared/Footer'
 import './App.css'
 
 // Oppretter én felles klient for håndtering av API-data.
@@ -84,6 +85,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
           </Routes>
         </Container>
+        <Footer />
       </Router>
     </QueryClientProvider>
   );
