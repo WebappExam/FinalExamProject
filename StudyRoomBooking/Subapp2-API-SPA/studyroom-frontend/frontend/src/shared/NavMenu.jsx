@@ -1,12 +1,13 @@
 
 import { Nav, Navbar } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import osloMetLogo from '../assets/Logo_of_Oslo_Metropolitan_University.svg';
 
 const NavMenu = () => {
   const {
     isAuthenticated,
-    email,
+    //email,
     logout
   } = useAuth();
 
@@ -18,35 +19,36 @@ const NavMenu = () => {
   };
 
   return (
-    <Navbar expand="lg" className="px-3">
-      <Navbar.Brand as={Link} to="/">
+    <Navbar expand="md" className="site-navbar" data-bs-theme="dark">
+      <Navbar.Brand as={Link} to="/" className ="d-flex align-items-center gap-2 me-md-4">
+      <img src={osloMetLogo} alt="OsloMet" height="36" className="me-3" />
         Study Room Booking
       </Navbar.Brand>
 
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
 
       <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="me-auto">
-          <Nav.Link as={Link} to="/">
-            Home
+        <Nav className="me-auto gap-md-3">
+          <Nav.Link as={NavLink} to="/">
+            Hjem
           </Nav.Link>
 
-          <Nav.Link as={Link} to="/rooms">
-            Rooms
+          <Nav.Link as={NavLink} to="/rooms">
+            Rom
           </Nav.Link>
 
-          <Nav.Link as={Link} to="/locations">
-            Locations
+          <Nav.Link as={NavLink} to="/locations">
+            Lokasjoner
           </Nav.Link>
 
           {isAuthenticated && (
             <>
-              <Nav.Link as={Link} to="/bookings">
-                My Bookings
+              <Nav.Link as={NavLink} to="/bookings">
+                Mine bookinger
               </Nav.Link>
 
-              <Nav.Link as={Link} to="/bookingcreate">
-                Create Booking
+              <Nav.Link as={NavLink} to="/bookingcreate">
+                Opprett booking
               </Nav.Link>
             </>
           )}
@@ -55,25 +57,25 @@ const NavMenu = () => {
         <Nav>
           {isAuthenticated ? (
             <>
-              <Navbar.Text className="me-3">
+              {/*<Navbar.Text className="me-3">
                 {email}
               </Navbar.Text>
-
+                */}
               <button
-                className="btn btn-outline-danger"
+                className="btn btn-outline-light"
                 onClick={handleLogout}
               >
-                Logout
+                Logg ut
               </button>
             </>
           ) : (
             <>
-              <Nav.Link as={Link} to="/login">
-                Login
+              <Nav.Link as={NavLink} to="/login">
+                Logg inn
               </Nav.Link>
 
-              <Nav.Link as={Link} to="/register">
-                Register
+              <Nav.Link as={NavLink} to="/register">
+                Registrer
               </Nav.Link>
             </>
           )}

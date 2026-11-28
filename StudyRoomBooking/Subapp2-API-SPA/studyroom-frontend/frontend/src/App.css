@@ -11,6 +11,7 @@
   &:hover {
     border-color: var(--accent-border);
   }
+
   &:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
@@ -42,8 +43,7 @@
     z-index: 1;
     top: 34px;
     height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
+    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg) scale(1.4);
   }
 
   .vite {
@@ -51,8 +51,7 @@
     top: 107px;
     height: 26px;
     width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
+    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg) scale(0.8);
   }
 }
 
@@ -75,9 +74,10 @@
   border-top: 1px solid var(--border);
   text-align: left;
 
-  & > div {
+  &>div {
     flex: 1 1 0;
     padding: 32px;
+
     @media (max-width: 1024px) {
       padding: 24px 20px;
     }
@@ -130,6 +130,7 @@
     &:hover {
       box-shadow: var(--shadow);
     }
+
     .button-icon {
       height: 18px;
       width: 18px;
@@ -156,11 +157,11 @@
 #spacer {
   height: 88px;
   border-top: 1px solid var(--border);
+
   @media (max-width: 1024px) {
     height: 48px;
   }
 }
-
 
 .ticks {
   position: relative;
@@ -178,17 +179,27 @@
     left: 0;
     border-left-color: var(--border);
   }
+
   &::after {
     right: 0;
     border-right-color: var(--border);
   }
 }
 
-  /* Svart navigasjonsmeny med luft rundt innholdet. */
+/* Svart navigasjonsmeny med luft rundt innholdet. */
 .site-navbar {
   background-color: #181818;
   padding: 1rem 1.25rem;
   margin-bottom: 2rem;
+}
+
+.site-navbar .navbar-brand img {
+  filter: brightness(0) invert(1);
+}
+
+
+.site-navbar:has(+ .container .home-hero) {
+  margin-bottom: 0;
 }
 
 .site-navbar .navbar-brand {
@@ -203,9 +214,12 @@
   padding-bottom: 0.5rem;
   border-bottom: 3px solid transparent;
 }
+
 /* Fremhever aktiv side og lenken musen peker på. */
-.site-navbar .nav-link.active, .site-navbar .nav-link:hover {
-  color: #ffdc00; border-bottom-color: #ffdc00;
+.site-navbar .nav-link.active,
+.site-navbar .nav-link:hover {
+  color: #ffdc00;
+  border-bottom-color: #ffdc00;
 }
 
 /* Synlig fokus når brukeren navigerer med tastaturet. */
@@ -269,18 +283,26 @@
   outline: 3px solid #181818;
   outline-offset: 4px;
 }
+
 /* Mindre avstand på mobil. */
 @media (max-width: 767px) {
-  .home-intro { padding: 2.5rem 0;
+  .home-intro {
+    padding: 2.5rem 0;
   }
 }
+
+.container:has(.home-hero) {
+  max-width: none;
+  padding-right: 0;
+}
+
 /* Viser tekst og bilde ved siden av hverandre. */
 .home-hero {
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 3rem;
-  padding: 2rem 0 3rem;
+  padding: 0;
 }
 
 .home-hero .home-intro {
@@ -289,10 +311,11 @@
 }
 
 .home-image {
+  display: block;
   width: 100%;
   height: 420px;
   object-fit: cover;
-  border-radius: 20px;
+  border-radius: 0;
 }
 
 /* Plasserer bildet under teksten på mindre skjermer. */
@@ -302,10 +325,15 @@
     gap: 2rem;
   }
 
+  .home-hero .home-intro {
+    padding: 1.5rem 1rem 0 0;
+  }
+
   .home-image {
     height: 280px;
   }
 }
+
 /* Gir romoversikten luft og en tydelig overskrift. */
 .room-page {
   padding: 1rem 0 3rem;
@@ -366,7 +394,8 @@
   gap: 0 1.5rem;
 }
 
-.room-search-fields > :first-child {
+.room-search-fields> :first-child
+  .room-search-fields > :nth-child(4) {
   grid-column: 1 / -1;
 }
 
@@ -409,7 +438,7 @@
   margin-bottom: 2rem;
 }
 
-.room-results-table > :not(caption) > * > * {
+.room-results-table> :not(caption)>*>* {
   padding: 1rem;
   vertical-align: middle;
 }
@@ -478,4 +507,175 @@
   min-height: 44px;
   border-radius: 8px;
   font-weight: 500;
+}
+
+/*--- footer start ---*/
+.bottom-footer {
+  background-color: rgb(255, 213, 0);
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  width: 100%;
+}
+
+/*footer ul (unordered list) decorations turned off*/
+.bottom-footer ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/*flex-container class modificatrions*/
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+@media (max-width: 892px) {
+  .flex-container {
+      flex-direction: column;
+  }
+}
+
+.flex-container h3{
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.flex-container a{
+  text-decoration: none;
+  color: black;
+  transition: all 0.1s ease;
+}
+
+.flex-container ul li a:hover {
+  text-decoration: underline;
+  color: white;
+}
+
+/*nyhetsbrev-cotainer*/
+.nyhetsbrev-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 904px) {
+  .nyhetsbrev-container {
+      justify-content: left;
+  }
+}
+
+.nyhetsbrev-container a{
+  text-decoration: none;
+}
+
+/*nyhetsbrev-button class*/
+.nyhetsbrev-button {
+  background-color: rgb(0, 0, 0);
+  color: white;
+  margin: 0.5em;
+  margin-bottom: 0;
+  padding: 0.6em 1em;
+  border-radius: 8px;
+}
+
+.nyhetsbrev-button a {
+  color: white;
+}
+
+/*nyhetsbrev class*/
+.nyhetsbrev {
+  padding: 0.5em;
+  margin: 0.5em;
+  margin-bottom: 0;
+}
+
+/*top-footer-border class*/
+.top-footer-border {
+  flex-grow: 1;
+  align-items: center;
+  padding: 5px;
+  border-bottom: 1px solid black;
+}
+
+/*about class*/
+.about {
+  flex-grow: 1;
+  flex-basis: 0;
+  min-width: 0;
+  margin: 0.25em;
+  padding: 0.5em 1em;
+  line-height: 1.4em;
+}
+
+.about h3 {
+  line-height: 1.5em;
+}
+
+.link-kontakt-oss {
+  margin-top: 1em;
+  font-weight: bold;
+}
+
+/*contact class*/
+.related-links {
+  flex-grow: 1;
+  flex-basis: 0;
+  min-width: 0;
+  margin: 0.5em;
+  padding: 0.5em 1em;
+  line-height: 1.2em;
+}
+
+.related-links h3 {
+  line-height: 1.5em;
+}
+
+/*socials class*/
+.socials {
+  flex-grow: 1;
+  flex-basis: 0;
+  min-width: 0;
+  margin: 0.5em;
+  padding: 0.5em 1em;
+  line-height: 1.8em;
+}
+
+/*socials class ikoner*/
+.socials img {
+  width: 1.5em; /* samme størrelse alle ikoner */
+  height: 1.5em;
+  margin-right: 0.5em; /* Space mellom link og ikoner */
+  vertical-align: middle;
+}
+
+/* Kompakt footer */
+.bottom-footer {
+  font-size: 0.8rem;
+}
+
+.nyhetsbrev h3,
+.nyhetsbrev-button h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Holder footeren nederst på sider med lite innhold. */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root > .container {
+  flex: 1;
+}
+.bottom-footer {
+  flex-shrink: 0;
+}
+
+.bottom-footer h3 {
+  margin-bottom: 0.5rem;
 }
