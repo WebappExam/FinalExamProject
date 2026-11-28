@@ -26,7 +26,15 @@ public class LocationsController(
     public async Task<ActionResult<LocationDto>> GetLocation(int locationId)
     {
         var location = await locationRepository.GetByIdAsync(locationId);
-        return location is null ? NotFound() : Ok(ToDto(location));
+        if (location is null)
+        {
+            return Problem(
+                title: "Location not found",
+                detail: $"Location with ID {locationId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
+        }
+
+        return Ok(ToDto(location));
     }
 
     [HttpGet("{locationId:int}/rooms")]
@@ -36,7 +44,10 @@ public class LocationsController(
         var location = await locationRepository.GetWithRoomsAsync(locationId);
         if (location is null)
         {
-            return NotFound();
+            return Problem(
+                title: "Location not found",
+                detail: $"Location with ID {locationId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
         }
 
         return Ok(new LocationWithRoomsDto
@@ -53,7 +64,10 @@ public class LocationsController(
         var name = request.Name.Trim();
         if (await locationRepository.NameExistsAsync(name))
         {
-            return Conflict(new { message = "A location with this name already exists." });
+            return Problem(
+                title: "Location conflict",
+                detail: "A location with this name already exists.",
+                statusCode: StatusCodes.Status409Conflict);
         }
 
         var location = new Location { Name = name };
@@ -72,13 +86,19 @@ public class LocationsController(
         var location = await locationRepository.GetByIdAsync(locationId);
         if (location is null)
         {
-            return NotFound();
+            return Problem(
+                title: "Location not found",
+                detail: $"Location with ID {locationId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
         }
 
         var name = request.Name.Trim();
         if (await locationRepository.NameExistsAsync(name, locationId))
         {
-            return Conflict(new { message = "A location with this name already exists." });
+            return Problem(
+                title: "Location conflict",
+                detail: "A location with this name already exists.",
+                statusCode: StatusCodes.Status409Conflict);
         }
 
         location.Name = name;
@@ -93,12 +113,18 @@ public class LocationsController(
     {
         if (await locationRepository.GetByIdAsync(locationId) is null)
         {
-            return NotFound();
+            return Problem(
+                title: "Location not found",
+                detail: $"Location with ID {locationId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
         }
 
         if (!await locationRepository.DeleteAsync(locationId))
         {
-            return Conflict(new { message = "A location with rooms cannot be deleted." });
+            return Problem(
+                title: "Location conflict",
+                detail: "A location with rooms cannot be deleted.",
+                statusCode: StatusCodes.Status409Conflict);
         }
 
         logger.LogInformation("Deleted location {LocationId}", locationId);
@@ -110,4 +136,5 @@ public class LocationsController(
         LocationId = location.LocationId,
         Name = location.Name
     };
+
 }

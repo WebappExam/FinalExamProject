@@ -25,7 +25,15 @@ public class RoomBookingsController(
     public async Task<ActionResult<RoomBookingDto>> GetBooking(int bookingId)
     {
         var booking = await bookingRepository.GetByIdAsync(bookingId);
-        return booking is null ? NotFound() : Ok(ToDto(booking));
+        if (booking is null)
+        {
+            return Problem(
+                title: "Booking not found",
+                detail: $"Booking with ID {bookingId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
+        }
+
+        return Ok(ToDto(booking));
     }
 
     [HttpPost]
@@ -37,10 +45,14 @@ public class RoomBookingsController(
         {
             return BadRequest(new ValidationProblemDetails(
                 new Dictionary<string, string[]>
+                {
+                    [nameof(request.OrganizerId)] =
+                        ["A valid OrganizerId is required."]
+                })
             {
-                [nameof(request.OrganizerId)] =
-                    ["A valid OrganizerId is required."]
-            }));
+                Status = StatusCodes.Status400BadRequest,
+                Title = "One or more validation errors occurred."
+            });
         }
 
         var room = await roomRepository.GetRoomById(request.RoomId);
@@ -48,9 +60,14 @@ public class RoomBookingsController(
         {
             return BadRequest(new ValidationProblemDetails(
                 new Dictionary<string, string[]>
+                {
+                    [nameof(request.RoomId)] =
+                        ["The specified room does not exist."]
+                })
             {
-                [nameof(request.RoomId)] = ["The specified room does not exist."]
-            }));
+                Status = StatusCodes.Status400BadRequest,
+                Title = "One or more validation errors occurred."
+            });
         }
 
         if (await bookingRepository.HasOverlappingBookingsAsync(
@@ -58,11 +75,10 @@ public class RoomBookingsController(
                 request.StartTime!.Value,
                 request.EndTime!.Value))
         {
-            return Conflict(new ProblemDetails
-            {
-                Title = "Booking conflict",
-                Detail = "The room is already booked during this time."
-            });
+            return Problem(
+                title: "Booking conflict",
+                detail: "The room is already booked during this time.",
+                statusCode: StatusCodes.Status409Conflict);
         }
 
         var booking = new RoomBooking
@@ -84,14 +100,17 @@ public class RoomBookingsController(
     }
 
     [HttpPut("{bookingId:int}")]
-    public async Task<ActionResult<RoomBookingDto>> UpdateBooking(
+    public async Task<IActionResult> UpdateBooking(
         int bookingId,
         CreateBookingRequest request)
     {
         var booking = await bookingRepository.GetByIdAsync(bookingId);
         if (booking is null)
         {
-            return NotFound();
+            return Problem(
+                title: "Booking not found",
+                detail: $"Booking with ID {bookingId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
         }
 
         var room = await roomRepository.GetRoomById(request.RoomId);
@@ -99,9 +118,14 @@ public class RoomBookingsController(
         {
             return BadRequest(new ValidationProblemDetails(
                 new Dictionary<string, string[]>
+                {
+                    [nameof(request.RoomId)] =
+                        ["The specified room does not exist."]
+                })
             {
-                [nameof(request.RoomId)] = ["The specified room does not exist."]
-            }));
+                Status = StatusCodes.Status400BadRequest,
+                Title = "One or more validation errors occurred."
+            });
         }
 
         if (await bookingRepository.HasOverlappingBookingsAsync(
@@ -110,11 +134,10 @@ public class RoomBookingsController(
                 request.EndTime!.Value,
                 bookingId))
         {
-            return Conflict(new ProblemDetails
-            {
-                Title = "Booking conflict",
-                Detail = "The room is already booked during this time."
-            });
+            return Problem(
+                title: "Booking conflict",
+                detail: "The room is already booked during this time.",
+                statusCode: StatusCodes.Status409Conflict);
         }
 
         booking.StartTime = request.StartTime.Value;
@@ -125,14 +148,22 @@ public class RoomBookingsController(
 
         await bookingRepository.UpdateAsync(booking);
 
-        return Ok(ToDto(booking));
+        return NoContent();
     }
 
     [HttpDelete("{bookingId:int}")]
     public async Task<IActionResult> DeleteBooking(int bookingId)
     {
         var deleted = await bookingRepository.DeleteAsync(bookingId);
-        return deleted ? NoContent() : NotFound();
+        if (!deleted)
+        {
+            return Problem(
+                title: "Booking not found",
+                detail: $"Booking with ID {bookingId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
+        }
+
+        return NoContent();
     }
 
     private static RoomBookingDto ToDto(RoomBooking booking) => new()

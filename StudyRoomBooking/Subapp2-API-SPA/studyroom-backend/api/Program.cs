@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
 using StudyRoomBooking.Mvc.Models;
+using StudyRoomBooking.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     });
 
 builder.Services.AddOpenApi(); // 2. Native .NET OpenAPI Support
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -35,7 +38,7 @@ builder.Services.AddCors(options => // CORS Policy for React Frontend Integratio
 });
 
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
-builder.Services.AddScoped<IRoomRepository, RoomRepository>(); //lagt til room repository
+builder.Services.AddScoped<IRoomRepository, RoomRepository>(); 
 builder.Services.AddScoped<IRoomBookingRepository, RoomBookingRepository>();
 
 var loggerConfiguration = new LoggerConfiguration()
@@ -129,6 +132,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseExceptionHandler();
 app.UseCors("CorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();

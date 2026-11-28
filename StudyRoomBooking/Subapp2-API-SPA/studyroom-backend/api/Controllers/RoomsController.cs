@@ -19,7 +19,15 @@ public class RoomsController(
 public async Task<ActionResult<RoomDto>> GetRoom(int roomId)
  {
         var room = await roomRepository.GetRoomById(roomId);
-        return room is null ? NotFound() : Ok(ToDto(room));
+       if (room is null)
+       {
+           return Problem(
+               title: "Room not found",
+               detail: $"Room with ID {roomId} does not exist.",
+               statusCode: StatusCodes.Status404NotFound);
+       }
+
+       return Ok(ToDto(room));
     }
 
     [HttpPost]
@@ -27,7 +35,16 @@ public async Task<ActionResult<RoomDto>> GetRoom(int roomId)
     {
         if (await locationRepository.GetByIdAsync(request.LocationId) is null)
         {
-            return BadRequest(new { message = "The specified location does not exist." });
+            return BadRequest(new ValidationProblemDetails(
+                new Dictionary<string, string[]>
+                {
+                    [nameof(request.LocationId)] =
+                        ["The specified location does not exist."]
+                })
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "One or more validation errors occurred."
+            });
         }
 
         var room = new Room
@@ -55,12 +72,24 @@ public async Task<ActionResult<RoomDto>> GetRoom(int roomId)
         var room = await roomRepository.GetRoomById(roomId);
         if (room is null)
         {
-            return NotFound();
+            return Problem(
+                title: "Room not found",
+                detail: $"Room with ID {roomId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
         }
 
         if (await locationRepository.GetByIdAsync(request.LocationId) is null)
         {
-            return BadRequest(new { message = "The specified location does not exist." });
+            return BadRequest(new ValidationProblemDetails(
+                new Dictionary<string, string[]>
+                {
+                    [nameof(request.LocationId)] =
+                        ["The specified location does not exist."]
+                })
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "One or more validation errors occurred."
+            });
         }
 
         room.RoomName = request.RoomName;
@@ -82,12 +111,18 @@ public async Task<ActionResult<RoomDto>> GetRoom(int roomId)
         var room = await roomRepository.GetRoomById(roomId);
         if (room is null)
         {
-            return NotFound();
+            return Problem(
+                title: "Room not found",
+                detail: $"Room with ID {roomId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
         }
 
         if (!await roomRepository.Delete(roomId))
         {
-            return Conflict(new { message = "A room with bookings cannot be deleted." });
+            return Problem(
+                title: "Room conflict",
+                detail: "A room with bookings cannot be deleted.",
+                statusCode: StatusCodes.Status409Conflict);
         }
 
         logger.LogInformation("Deleted room {RoomId}", roomId);
