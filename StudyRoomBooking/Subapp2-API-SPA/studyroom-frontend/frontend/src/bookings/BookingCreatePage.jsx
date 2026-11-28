@@ -32,20 +32,20 @@ const BookingCreatePage = () => {
 
   // Leser valgt rom fra adressen og kontrollerer at det finnes.
   const [searchParams] = useSearchParams();
-  const selectedRoom = rooms.find(
+  const selectedRoom = rooms.find( //søker først
     room => Number(room.RoomId) === Number(searchParams.get('roomId'))
   );
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false); //Hold oversikt over pågående lagring
 
   // Sender bookingen videre og åpner oversikten etter lagring.
   const handleCreate = async (booking) => {
-    setSubmitting(true);
+    setSubmitting(true); //Det lagres
 
     try {
-      await createMutation.mutateAsync(booking);
+      await createMutation.mutateAsync(booking); //Send til API
       navigate('/bookings');
-    } finally {
-      setSubmitting(false);
+    } finally { //Kjører uavhengig fail/pass
+      setSubmitting(false); //nullstill
     }
   };
 
@@ -57,6 +57,8 @@ const BookingCreatePage = () => {
     <div className="text-start">
       <h1>Opprett ny booking</h1>
 
+{/* Forhåndsvelger rom hvis ID finnes, ellers brukes tom verdi.
+    Lagringstilstanden sendes til BookingForm via props. */}
       <BookingForm
         rooms={rooms}
         initialValues={{ RoomId: selectedRoom?.RoomId ?? '' }}

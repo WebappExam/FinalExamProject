@@ -399,6 +399,14 @@ public class RoomLocationController : Controller
 
         var name = viewModel.Name.Trim();
 
+        if (name.Length < 2)
+        {
+            ModelState.AddModelError(
+                nameof(viewModel.Name),
+                "Navnet kan ikke være mindre enn 2 tegn");
+                return View(viewModel);
+        }
+
         if (await _locationRepository.NameExistsAsync(name))
         {
             ModelState.AddModelError(

@@ -159,6 +159,7 @@ const BookingForm = ({
             )}
 
             <div className="booking-form-actions">
+                 {/* Deaktiverer knappen under lagring for å unngå dobbel innsending. */}
                 <Button
                     type="submit"
                     variant="primary"

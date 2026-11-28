@@ -79,11 +79,13 @@ export async function deleteRoom(roomId) {
     );
   }
 }
-// Henter alle rom fra alle lokasjoner.
+//Henter alle rom fra alle lokasjoner.
 export async function fetchRooms() {
   const locations = await LocationService.fetchLocations();
 
+  //Håndtere flere forespørsler da rom hentes per lokasjon
   const locationsWithRooms = await Promise.all(
+    //Samler rom fra ulike lokasjoner i en felles liste
     locations.map(location =>
       fetchLocationRooms(location.locationId)
     )

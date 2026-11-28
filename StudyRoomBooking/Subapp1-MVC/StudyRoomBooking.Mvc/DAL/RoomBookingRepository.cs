@@ -29,13 +29,13 @@ public class RoomBookingRepository : IRoomBookingRepository
     {
         _db.RoomBooking.Remove(booking);
         await _db.SaveChangesAsync();
-    
+
     }
 
     //Henter brukers bookinger med informasjon om rommet
     public async Task<IEnumerable<RoomBooking>> GetByOrganizerIdAsync(
         string organizerId)
-    { 
+    {
         return await _db.RoomBooking
     .AsNoTracking()
     .Where(booking => booking.OrganizerId == organizerId)
@@ -97,13 +97,13 @@ public class RoomBookingRepository : IRoomBookingRepository
             b.RoomId == roomId &&
             b.StartTime < endTime &&
             b.EndTime > startTime &&
-            (!excludeBookingId.HasValue ||
+            (!excludeBookingId.HasValue || //Sørger for at booking ikke sammenlignes med seg selv ved redigering og overlappskontroll
              b.Id != excludeBookingId.Value));
     }
 
     public async Task<List<int>> GetOccupiedRoomIdAsync(
-        int locationId, 
-        DateTime startTime, 
+        int locationId,
+        DateTime startTime,
         DateTime endTime)
     {
 
