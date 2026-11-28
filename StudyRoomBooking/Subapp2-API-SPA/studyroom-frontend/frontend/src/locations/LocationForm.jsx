@@ -62,7 +62,8 @@ const LocationForm = ({
               e.target.setCustomValidity('Lokasjonsnavn må ha mellom 2 og 50 tegn.'); //Tilpasse nettlesers meldinger til norsk.
             }
           }}
-          onInput={e => e.target.setCustomValidity('')} //Feilmelding blir nullstilt når bruker prøver igjen
+          //Feilmelding blir nullstilt når bruker prøver igjen
+          onInput={e => e.target.setCustomValidity('')}
         />
       </Form.Group>
 

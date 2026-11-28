@@ -83,8 +83,10 @@ export async function deleteRoom(roomId) {
 export async function fetchRooms() {
   const locations = await LocationService.fetchLocations();
 
-  const locationsWithRooms = await Promise.all( //Håndtere flere forespørsler da rom hentes per lokasjon
-    locations.map(location => //Samler rom fra ulike lokasjoner i en felles liste
+  //Håndtere flere forespørsler da rom hentes per lokasjon
+  const locationsWithRooms = await Promise.all(
+    //Samler rom fra ulike lokasjoner i en felles liste
+    locations.map(location =>
       fetchLocationRooms(location.locationId)
     )
   );

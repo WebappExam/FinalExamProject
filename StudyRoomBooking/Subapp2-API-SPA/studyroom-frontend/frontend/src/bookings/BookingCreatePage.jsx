@@ -57,12 +57,14 @@ const BookingCreatePage = () => {
     <div className="text-start">
       <h1>Opprett ny booking</h1>
 
+{/* Forhåndsvelger rom hvis ID finnes, ellers brukes tom verdi.
+    Lagringstilstanden sendes til BookingForm via props. */}
       <BookingForm
         rooms={rooms}
-        initialValues={{ RoomId: selectedRoom?.RoomId ?? '' }} //Hvis ikke ID finnes, bruk tom verdi
+        initialValues={{ RoomId: selectedRoom?.RoomId ?? '' }}
         onBookingChanged={handleCreate}
         onCancel={() => navigate('/bookings')}
-        submitting={submitting} //Sender til BookingForm via props
+        submitting={submitting}
       />
     </div>
   );
